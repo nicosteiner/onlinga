@@ -1,0 +1,249 @@
+@font-face {
+  font-family: 'Grey Magus';
+  src: url('../fonts/greymagus.ttf');
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  overflow: hidden;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  font-family: Arial, sans serif;
+}
+
+/*
+
+  gamepad size: 1280 x 900
+  
+  if wrapper is bigger, there is a black border
+  
+  if wrapper is smaller, scrolling is activated
+  
+  for testing purposes, wrapper size is artifically shrinked to 800 x 600
+  
+*/
+
+#wrapper {
+  position: relative;
+  min-width: 560px;
+  min-height: 470px;
+  overflow: hidden;
+}
+
+#wrapper .hidden {
+  display: none;
+}
+
+#gamepad {
+  position: absolute;
+  min-width: 560px;
+  min-height: 470px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#background-canvas {
+  position: absolute;
+  width: 560px;
+  height: 470px;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#gamepad .highlight {
+  position: absolute;
+  z-index: 1;
+  display: none;
+}
+
+#gamepad .highlight {
+  width: 74px;
+  height: 73px;
+  background: url(../img/tiles/highlight-white.png) 0 0 no-repeat;
+}
+
+#gamepad .highlight.enemy {
+  background-image: url(../img/tiles/highlight-red.png);
+}
+
+@-webkit-keyframes pulse {
+  0%   { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+@-moz-keyframes pulse {
+  0%   { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+#gamepad .highlight.pulse {
+  -webkit-animation: 2s pulse infinite;
+  -moz-animation: 2s pulse infinite;
+}
+
+#gamepad .trees,
+#gamepad .military,
+#gamepad .hills {
+  position: absolute;
+  z-index: 5;
+  display: none;
+}
+
+#gamepad .hills {
+  width: 74px;
+  height: 73px;
+  background: url(../img/tiles/hill-1.png) 0 0 no-repeat;
+}
+
+#gamepad .hills.version-1 {
+  background-image: url(../img/tiles/hill-1.png);
+}
+
+#gamepad .hills.version-2 {
+  background-image: url(../img/tiles/hill-2.png);
+}
+
+#gamepad .hills.version-3 {
+  background-image: url(../img/tiles/hill-3.png);
+}
+
+#gamepad .hills.version-4 {
+  background-image: url(../img/tiles/hill-4.png);
+}
+
+#gamepad .hills.version-5 {
+  background-image: url(../img/tiles/hill-5.png);
+}
+
+#gamepad .hills.version-6 {
+  background-image: url(../img/tiles/hill-6.png);
+}
+
+#gamepad .trees {
+  z-index: 15;
+}
+
+#gamepad .trees.one {
+  width: 49px;
+  height: 53px;
+  background: url(../img/tiles/trees-one.png) 0 0 no-repeat;
+}
+
+#gamepad .trees.many {
+  width: 69px;
+  height: 72px;
+  background: url(../img/tiles/trees-many.png) 0 0 no-repeat;
+}
+
+#gamepad .trees.transparent {
+  opacity: 0.7;
+}
+
+#gamepad .military {
+  width: 90px;
+  height: 90px;
+  background-repeat: no-repeat;
+  z-index: 10;
+  margin-top: -8px;
+  margin-left: -8px;
+}
+
+#gamepad #hint {
+  color: #fff;
+  font-family: Grey Magus, sans serif;
+  font-size: 20px;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 1);
+  z-index: 20;
+  position: absolute;
+  display: none;
+}
+
+#gamepad #hit {
+  color: #fff;
+  font-family: Grey Magus, sans serif;
+  font-size: 100px;
+  font-weight: bold;
+  line-height: 1em;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 1);
+  z-index: 20;
+  position: absolute;
+  left: 15px;
+  top: 30px;
+  display: none;
+}
+
+#gamepad #hit.negative {
+  color: #f00;
+}
+
+#gamepad .military.knight-1-1 {
+  background-image: url(../img/player-1/knight-1.png);
+  background-position: 28px 25px;
+}
+
+#gamepad .military.knight-1-2 {
+  background-image: url(../img/player-1/knight-1.png), url(../img/player-2/knight-1.png);
+  background-position: 16px 25px, 40px 25px;
+}
+
+#gamepad .military.knight-1-3 {
+  background-image: url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png);
+  background-position: 16px 34px, 40px 34px, 28px 16px;
+}
+
+#gamepad .military.knight-1-4 {
+  background-image: url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png);
+  background-position: 16px 34px, 40px 34px, 16px 16px, 40px 16px;
+}
+
+#gamepad .military.knight-1-5 {
+  background-image: url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png);
+  background-position: 10px 25px, 20px 5px, 42px 8px, 45px 28px, 28px 42px;
+}
+
+#gamepad .military.knight-1-6 {
+  background-image: url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png), url(../img/player-1/knight-1.png);
+  background-position: 10px 32px, 45px 32px, 28px 42px, 10px 12px, 45px 12px, 28px 0px;
+}
+
+#gamepad .military.knight-2-1 {
+  background-image: url(../img/player-2/knight-1.png);
+  background-position: 28px 25px;
+}
+
+#gamepad .military.knight-2-2 {
+  background-image: url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png);
+  background-position: 16px 25px, 40px 25px;
+}
+
+#gamepad .military.knight-2-3 {
+  background-image: url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png);
+  background-position: 16px 34px, 40px 34px, 28px 16px;
+}
+
+#gamepad .military.knight-2-4 {
+  background-image: url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png);
+  background-position: 16px 34px, 40px 34px, 16px 16px, 40px 16px;
+}
+
+#gamepad .military.knight-2-5 {
+  background-image: url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png);
+  background-position: 10px 25px, 20px 5px, 42px 8px, 45px 28px, 28px 42px;
+}
+
+#gamepad .military.knight-2-6 {
+  background-image: url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png), url(../img/player-2/knight-1.png);
+  background-position: 10px 32px, 45px 32px, 28px 42px, 10px 12px, 45px 12px, 28px 0px;
+}
