@@ -322,7 +322,7 @@ ONLINGA.gamepad = (function() {
     
       // get target hexaeder
       
-      var i, j, posX, posY, offset;
+      var i, j, offset;
       
       for (i = 0; i < underground.length; i += 1) {
     
@@ -335,7 +335,7 @@ ONLINGA.gamepad = (function() {
               y > i * 72 + offset &&
               y < i * 72 + offset + 73) {
             
-            ONLINGA.gamepad.highlightHexaeder(j, i);
+            ONLINGA.gamepad.processClickAtTile(j, i);
             
             break;
             
@@ -347,21 +347,101 @@ ONLINGA.gamepad = (function() {
       
     },
     
-    highlightHexaeder: function(x, y) {
+    processClickAtTile: function(x, y) {
+
+      var offsetY, i, j, validTarget, possibleEnemy, surfaceData;
     
-      var offsetY, i, validTarget;
+      // the main logic can be found here
     
-      // there are two cases:
-      // - military not yet selected
-      // - military already selected
+      // check the mode of selection (selected / not selected)
+      
+      if (ONLINGA.gamepad.validTargets) {
     
-      if (!ONLINGA.gamepad.selectedMilitary) {
+        // yes, currently something is selected
     
-        // check if there is military at that position
+        if (ONLINGA.gamepad.selectedMilitary && ONLINGA.gamepad.selectedMilitary.position.x === x && ONLINGA.gamepad.selectedMilitary.position.y === y) {
+      
+          // if the active military group is clicked, undo selection completely
+      
+          ONLINGA.gamepad.deselectAll();
+          
+        } else {
+
+          // if an other tile is clicked...
+          
+          // check if it is a valid target for the military
+        
+          validTarget = false;
+        
+          for (i = 0; i < ONLINGA.gamepad.validTargets.length; i += 1) {
+          
+            // at the beginning of a new range validTargets[i] is undefined
+          
+            if (ONLINGA.gamepad.validTargets[i]) {
+          
+              for (j = 0; j < ONLINGA.gamepad.validTargets[i].length; j += 1) {
+              
+                if (ONLINGA.gamepad.validTargets[i][j].x === x && ONLINGA.gamepad.validTargets[i][j].y === y) {
+                
+                  validTarget = ONLINGA.gamepad.validTargets[i][j];
+                  
+                  break;
+                
+                }
+                
+              }
+              
+            }
+          
+          }
+          
+          if (validTarget) {
+          
+            // calculate target action
+            
+            // check for attacking enemy
+            
+            possibleEnemy = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
+            
+            surfaceData = ONLINGA.gamepad.getSurfaceDataAtPosition(x, y);
+            
+            if (possibleEnemy && possibleEnemy.player === 2) {
+            
+              // attack
+            
+              ONLINGA.gamepad.showAttackHits(1);
+            
+            } else {
+            
+              // deal with surface data later
+              
+              ONLINGA.gamepad.moveMilitaryToPosition(x, y);
+            
+            }
+      
+          } else {
+          
+            // no valid target (click outside of range)
+          
+            ONLINGA.gamepad.deselectAll();
+          
+          }
+        
+        }
+        
+      } else {
+      
+        // there is nothing selected
+    
+        // check if there is own military at clicked tile
         
         ONLINGA.gamepad.selectedMilitary = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
         
         if (ONLINGA.gamepad.selectedMilitary && ONLINGA.gamepad.selectedMilitary.player === 1) {
+      
+          // yes, there is own military
+          
+          // highlight military and valid targets
       
           if (!ONLINGA.gamepad.militaryHighlightElement) {
         
@@ -378,7 +458,7 @@ ONLINGA.gamepad = (function() {
             left: x * 54 + 1,
             
             top: y * 72 + offsetY + 1,
-                  
+            
             display: 'block'
             
           });
@@ -386,80 +466,20 @@ ONLINGA.gamepad = (function() {
           ONLINGA.gamepad.highlightTargetHexaeders();
           
         }
-        
-      } else {
-      
-        // check if selected hexaeder is valid target
-      
-        validTarget = false;
-      
-        for (i = 0; i < ONLINGA.gamepad.validTargets.length; i += 1) {
-        
-          if (ONLINGA.gamepad.validTargets[i].x === x && ONLINGA.gamepad.validTargets[i].y === y) {
-          
-            validTarget = ONLINGA.gamepad.validTargets[i];
             
-            break;
-          
-          }
-        
-        }
-        
-        if (validTarget) {
-        
-          ONLINGA.gamepad.moveMilitary(x, y);
-        
-        } else {
-        
-          ONLINGA.gamepad.deselectAll();
-        
-        }
-      
       }
-    
+      
     },
     
     deselectAll: function() {
     
       // deselect targets
       
-      ONLINGA.gamepad.validTargets = [];
-    
       ONLINGA.gamepad.removeExistingTargetHighlightings();
     
       // deselect military
       
-      ONLINGA.gamepad.selectedMilitary = false;
-
       ONLINGA.gamepad.deselectMilitary();
-    
-    },
-    
-    moveMilitary: function(x, y) {
-    
-      // calculate target action
-      
-      var possibleEnemy, surfaceData;
-      
-      possibleEnemy = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
-      
-      surfaceData = ONLINGA.gamepad.getSurfaceDataAtPosition(x, y);
-      
-      // check for attacking enemy
-      
-      if (possibleEnemy && possibleEnemy.player === 2) {
-      
-        // attack
-      
-        ONLINGA.gamepad.showAttackHits(1);
-      
-      } else {
-      
-        // deal with surface data later
-        
-        ONLINGA.gamepad.moveMilitaryToPosition(x, y);
-      
-      }
     
     },
     
@@ -599,8 +619,6 @@ ONLINGA.gamepad = (function() {
         
         // remove existing highlightings
         
-        ONLINGA.gamepad.validTargets = [];
-        
         ONLINGA.gamepad.removeExistingTargetHighlightings();
         
         // highlight targets in range
@@ -623,25 +641,57 @@ ONLINGA.gamepad = (function() {
       
       }
       
+      delete ONLINGA.gamepad.validTargets;
+    
     },
     
     deselectMilitary: function() {
+
+      if (ONLINGA.gamepad.militaryHighlightElement) {
     
-      var existingHighlightings, i;
-      
-      existingHighlightings = $('#gamepad .highlight.pulse');
-    
-      for (i = 0; i < existingHighlightings.length; i += 1) {
-      
-        $(existingHighlightings[i]).remove();
-      
+        $(ONLINGA.gamepad.militaryHighlightElement).css({
+          
+          display: 'none'
+          
+        });
+        
       }
       
+      ONLINGA.gamepad.selectedMilitary = false;
+      
+    },
+    
+    highlightTargetsInRangeSub: function(range) {
+    
+      var i, x, y;
+    
+      ONLINGA.gamepad.validTargets[range] = [];
+      
+      for (i = 0; i < ONLINGA.gamepad.validTargets[range - 1].length; i += 1) {
+    
+        x = ONLINGA.gamepad.validTargets[range - 1][i].x;
+    
+        y = ONLINGA.gamepad.validTargets[range - 1][i].y;
+    
+        ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y - x % 2, range);
+      
+        ONLINGA.gamepad.highlightTargetHexaeder(x, y - 1, range);
+      
+        ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y - x % 2, range);
+      
+        ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), range);
+      
+        ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), range);
+      
+        ONLINGA.gamepad.highlightTargetHexaeder(x, y + 1, range);
+    
+      }
+    
     },
     
     highlightTargetsInRange: function(range) {
     
-      var x, y;
+      var x, y, i;
       
       x = ONLINGA.gamepad.selectedMilitary.position.x;
     
@@ -649,17 +699,33 @@ ONLINGA.gamepad = (function() {
     
       // highlight range 1 in every case
       
-      ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y - x % 2);
+      ONLINGA.gamepad.validTargets = [];
+      
+      ONLINGA.gamepad.validTargets[1] = [];
+      
+      ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x, y - 1);
+      ONLINGA.gamepad.highlightTargetHexaeder(x, y - 1, 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y - x % 2);
+      ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2));
+      ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2));
+      ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x, y + 1);
+      ONLINGA.gamepad.highlightTargetHexaeder(x, y + 1, 1);
+    
+      if (range > 1) {
+    
+        for (i = 2; i <= range; i += 1) {
+        
+          ONLINGA.gamepad.highlightTargetsInRangeSub(i);
+        
+        }
+        
+      }
+      
+      /*
     
       if (range === 2) {
       
@@ -718,12 +784,48 @@ ONLINGA.gamepad = (function() {
         }
       
       }
+      
+      */
     
     },
     
-    highlightTargetHexaeder: function(x, y) {
+    isAlreadyValidTarget: function(x, y, range) {
     
-      var highlightElement, i, militaryTarget, offsetY;
+      var i, j;
+    
+      // targets with range = 1 are always new
+    
+      if (range > 1) {
+      
+        for (i = 0; i <= range; i += 1) {
+        
+          // at the beginning of a new range validTargets[i] is undefined
+        
+          if (ONLINGA.gamepad.validTargets[i]) {
+        
+            for (j = 0; j < ONLINGA.gamepad.validTargets[i].length; j += 1) {
+            
+              if (ONLINGA.gamepad.validTargets[i][j].x === x && ONLINGA.gamepad.validTargets[i][j].y === y) {
+              
+                return true;
+              
+              }
+            
+            }
+            
+          }
+          
+        }
+      
+      }
+      
+      return false;
+    
+    },
+    
+    highlightTargetHexaeder: function(x, y, range) {
+    
+      var highlightElement, militaryTarget, offsetY;
 
       highlightElement = $('.highlight').first().clone().appendTo('#gamepad');
 
@@ -736,37 +838,42 @@ ONLINGA.gamepad = (function() {
         // check if there is an own military target
         // if not, highlight the hexaeder
 
-        militaryTarget = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
+        if (!ONLINGA.gamepad.isAlreadyValidTarget(x, y, range)) {
         
-        if (!militaryTarget || militaryTarget.player === 2) {
-        
-          offsetY = x % 2 === 0 ? 36 : 0;
+          militaryTarget = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
           
-          $(highlightElement).css({
+          if (!militaryTarget || militaryTarget.player === 2) {
           
-            left: x * 54 + 1,
+            offsetY = x % 2 === 0 ? 36 : 0;
             
-            top: y * 72 + offsetY + 1,
-                  
-            display: 'block'
+            $(highlightElement).css({
             
-          });
-          
-          ONLINGA.gamepad.validTargets.push({
-          
-            x: x,
-            y: y
+              left: x * 54 + 1,
+              
+              top: y * 72 + offsetY + 1,
+                    
+              display: 'block'
+              
+            });
             
-          });
+            ONLINGA.gamepad.validTargets[range].push({
+            
+              x: x,
+              
+              y: y
+              
+            });
+            
+          }
           
-        }
-        
-        // if it is an enemy military, highlight hexaeder red
-        
-        if (militaryTarget && militaryTarget.player === 2) {
-        
-          highlightElement.addClass('enemy');
-        
+          // if it is an enemy military, highlight hexaeder red
+          
+          if (militaryTarget && militaryTarget.player === 2) {
+          
+            highlightElement.addClass('enemy');
+          
+          }
+          
         }
         
       }
@@ -821,7 +928,7 @@ ONLINGA.gamepad = (function() {
     
     renderBackground: function() {
     
-      var i, j, x, y, meadowElement, offset;
+      var i, j, meadowElement, offset;
     
       canvasContext.fillStyle = 'rgba(140, 164, 52, 1)';
       canvasContext.fillRect(0, 0, 570, 470);
@@ -926,7 +1033,7 @@ ONLINGA.gamepad = (function() {
     
     renderObjects: function() {
     
-      var i, j, offset, offsetX, offsetY, lakeElement, treeElement, hillElement;
+      var i, j, offset, offsetX, offsetY, treeElement, hillElement;
     
       // small and big lakes
     
