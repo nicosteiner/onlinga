@@ -76,6 +76,10 @@ body {
   background-image: url(../img/tiles/highlight-red.png);
 }
 
+#gamepad .highlight.outside {
+  opacity: 0.3;
+}
+
 @-webkit-keyframes pulse {
   0%   { opacity: 0.5; }
   50% { opacity: 1; }
