@@ -103,7 +103,9 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 1
+          quantity: 1,
+          
+          orientation: 1
           
         }, {
         
@@ -113,7 +115,9 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 2
+          quantity: 2,
+          
+          orientation: 1
           
         }, {
         
@@ -123,7 +127,9 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 3
+          quantity: 3,
+          
+          orientation: 1
           
         }, {
         
@@ -133,7 +139,9 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 4
+          quantity: 4,
+          
+          orientation: 1
           
         }, {
         
@@ -143,7 +151,9 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 5
+          quantity: 5,
+          
+          orientation: 1
           
         }, {
         
@@ -153,7 +163,9 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 6
+          quantity: 6,
+          
+          orientation: 1
           
         }, {
         
@@ -163,7 +175,9 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 5
+          quantity: 5,
+          
+          orientation: 1
           
         }
         
@@ -541,9 +555,111 @@ ONLINGA.gamepad = (function() {
     
     },
     
+    setMilitaryOrientation: function(x, y) {
+    
+      var xOrientation, yOrientation, orientation,
+          militaryBackground, militaryElement,
+          regExpPattern;
+      
+      xOrientation = x - ONLINGA.gamepad.selectedMilitary.position.x;
+      
+      yOrientation = y - ONLINGA.gamepad.selectedMilitary.position.y - (x % 2);;
+      
+      // there are 6 orientations possible
+      
+      // the calculation only in vertical orientation depends on x position
+      
+      // 1 - down / 2 - down|left / 3 - up|left
+      
+      if (xOrientation === 0 && yOrientation === (1 - (x % 2))) {
+      
+        orientation = 1;
+      
+      }
+    
+      if (xOrientation === -1 && yOrientation === 0) {
+      
+        orientation = 2;
+      
+      }
+    
+      if (xOrientation === -1 && yOrientation === -1) {
+      
+        orientation = 3;
+      
+      }
+    
+      // 4 - up   / 5 - up|right  / 6 - down|right
+      
+      if (xOrientation === 0 && yOrientation === (-1 - (x % 2))) {
+      
+        orientation = 4;
+      
+      }
+        
+      if (xOrientation === 1 && yOrientation === -1) {
+      
+        orientation = 5;
+      
+      }
+    
+      if (xOrientation === 1 && yOrientation === 0) {
+      
+        orientation = 6;
+      
+      }
+      
+      if (orientation) {
+      
+        // change military character backgrounds
+        
+        militaryElement = $('#military-tile-' + ONLINGA.gamepad.selectedMilitary.index);
+        
+        militaryBackground = militaryElement.css('background-image');
+
+        regExpPattern = new RegExp(ONLINGA.gamepad.selectedMilitary.type + '-' + ONLINGA.gamepad.selectedMilitary.orientation, 'gi');
+        
+        militaryBackground = militaryBackground.replace(regExpPattern, ONLINGA.gamepad.selectedMilitary.type + '-' + orientation);
+      
+        militaryElement.css({
+          
+          'background-image': militaryBackground
+          
+        });
+      
+        // set new orientation after that
+        
+        ONLINGA.gamepad.selectedMilitary.orientation = orientation;
+        
+      }
+      
+    },
+    
+    setMilitaryPosition: function(x, y) {
+    
+      ONLINGA.gamepad.selectedMilitary.position.x = x;
+      
+      ONLINGA.gamepad.selectedMilitary.position.y = y;
+      
+      militaryElement = $('#military-tile-' + ONLINGA.gamepad.selectedMilitary.index);
+    
+      offsetY = ONLINGA.gamepad.selectedMilitary.position.x % 2 === 0 ? 36 : 0;
+
+      militaryElement.css({
+      
+        left: ONLINGA.gamepad.selectedMilitary.position.x * 54,
+        
+        top: ONLINGA.gamepad.selectedMilitary.position.y * 72 + offsetY,
+        
+        display: 'block'
+        
+      });
+    
+    },
+    
     moveMilitaryToPosition: function(x, y) {
     
-      var militaryElement, treeElement, offsetY;
+      var militaryElement, treeElement, offsetY, orientation;
     
       if (ONLINGA.gamepad.selectedMilitary) {
       
@@ -567,24 +683,10 @@ ONLINGA.gamepad = (function() {
           
         }
       
-        ONLINGA.gamepad.selectedMilitary.position.x = x;
-        
-        ONLINGA.gamepad.selectedMilitary.position.y = y;
-        
-        militaryElement = $('#military-tile-' + ONLINGA.gamepad.selectedMilitary.index);
+        ONLINGA.gamepad.setMilitaryOrientation(x, y);
       
-        offsetY = ONLINGA.gamepad.selectedMilitary.position.x % 2 === 0 ? 36 : 0;
-
-        militaryElement.css({
-        
-          left: ONLINGA.gamepad.selectedMilitary.position.x * 54,
-          
-          top: ONLINGA.gamepad.selectedMilitary.position.y * 72 + offsetY,
-          
-          display: 'block'
-          
-        });
-        
+        ONLINGA.gamepad.setMilitaryPosition(x, y);
+      
         // still moves left?
         
         if (ONLINGA.gamepad.range !== 0) {
@@ -1127,7 +1229,7 @@ ONLINGA.gamepad = (function() {
               
             });
             
-            if (militaryPositions[i][j] === 1) {
+            if (militaryPositions[i][j] !== 0) {
             
               treeElement.addClass('transparent');
             
