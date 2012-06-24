@@ -10,13 +10,7 @@ ONLINGA.gamepad = (function() {
       military = [],
       militaryPositions = [],
       canvas,
-      canvasContext,
-      meadow = [],
-      hill = [],
-      hexaeder,
-      lakeSmall, lakeBig,
-      fallowMedium = [],
-      fallowBig = [];
+      canvasContext;
 
   // public methods
   
@@ -284,13 +278,13 @@ ONLINGA.gamepad = (function() {
         
         image.onload = function() {
         
-          console.log(image.src.substring(image.src.lastIndexOf('/') + 1, image.src.lastIndexOf('.')));
+          // console.log(image.src.substring(image.src.lastIndexOf('/') + 1, image.src.lastIndexOf('.')));
         
           imageStack.shift();
         
           ONLINGA.gamepad.loadImagesRecursive(imageStack);
         
-        }
+        };
       
       } else {
       
@@ -441,12 +435,8 @@ ONLINGA.gamepad = (function() {
       
           } else {
           
-            if (validClick) {
+            if (!validClick) {
             
-              // maybe communicate something
-            
-            } else {
-          
               // no valid target/click (click outside of range)
             
               ONLINGA.gamepad.deselectAll();
@@ -553,7 +543,7 @@ ONLINGA.gamepad = (function() {
       
       xOrientation = x - ONLINGA.gamepad.selectedMilitary.position.x;
       
-      yOrientation = y - ONLINGA.gamepad.selectedMilitary.position.y - (x % 2);;
+      yOrientation = y - ONLINGA.gamepad.selectedMilitary.position.y - (x % 2);
       
       // there are 6 orientations possible
       
@@ -627,6 +617,8 @@ ONLINGA.gamepad = (function() {
     
     setMilitaryPosition: function(x, y) {
     
+      var militaryElement, offsetY;
+    
       ONLINGA.gamepad.selectedMilitary.position.x = x;
       
       ONLINGA.gamepad.selectedMilitary.position.y = y;
@@ -649,7 +641,7 @@ ONLINGA.gamepad = (function() {
     
     moveMilitaryToPosition: function(x, y) {
     
-      var militaryElement, treeElement, offsetY, orientation;
+      var treeElement;
     
       if (ONLINGA.gamepad.selectedMilitary) {
       
@@ -1029,19 +1021,19 @@ ONLINGA.gamepad = (function() {
     
       meadowImage[0] = new Image();
           
-      meadowImage[0].src = 'img/tiles/meadow-1.gif',
+      meadowImage[0].src = 'img/tiles/meadow-1.gif';
 
       meadowImage[1] = new Image();
           
-      meadowImage[1].src = 'img/tiles/meadow-2.gif',
+      meadowImage[1].src = 'img/tiles/meadow-2.gif';
 
       meadowImage[2] = new Image();
           
-      meadowImage[2].src = 'img/tiles/meadow-3.gif',
+      meadowImage[2].src = 'img/tiles/meadow-3.gif';
 
       hexagonImage = new Image();
 
-      hexagonImage.src = 'img/tiles/hexaeder.png',
+      hexagonImage.src = 'img/tiles/hexaeder.png';
 
       fallowImage[0] = new Image();
 
@@ -1171,42 +1163,30 @@ ONLINGA.gamepad = (function() {
     
         for (j = 0; j < surface[i].length; j += 1) {
     
-          if (surface[i][j] === 1 && surface[i][j - 1] === 1 && surface[i + 1][j] === 1) {
+          if (!(surface[i][j] === 1 && surface[i][j - 1] === 1 && surface[i + 1][j] === 1) && !(surface[i][j] === 1 && surface[i - 1][j - 1] === 1 && surface[i - 1][j] === 1)) {
    
-            // ignore
-            
-          } else {
-          
-            if (surface[i][j] === 1 && surface[i - 1][j - 1] === 1 && surface[i - 1][j] === 1) {
+            if (surface[i][j] === 1 && surface[i][j + 1] === 1 && surface[i + 1][j + 1] === 1 && !(surface[i][j] === 1 && surface[i][j - 1] === 1 && surface[i + 1][j] === 1) && !(surface[i][j] === 1 && surface[i - 1][j - 1] === 1 && surface[i - 1][j] === 1)) {
     
-              // ignore
+              // draw big lake
               
+              offset = j % 2 === 1 ? 36 : 0;
+        
+              canvasContext.drawImage(lakeBigImage, j * 54 + 4, i * 72 + 8 + offset, 122, 134);
+            
             } else {
-            
-              if (surface[i][j] === 1 && surface[i][j + 1] === 1 && surface[i + 1][j + 1] === 1) {
-      
-                // draw
-                
-                offset = j % 2 === 1 ? 36 : 0;
           
-                canvasContext.drawImage(lakeBigImage, j * 54 + 4, i * 72 + 8 + offset, 122, 134);
+              if (surface[i][j] === 1) {
               
-              } else {
-            
-                if (surface[i][j] === 1) {
+                // draw small lake
                 
-                  // draw
-                  
-                  offset = j % 2 === 0 ? 36 : 0;
-            
-                  canvasContext.drawImage(lakeSmallImage, j * 54 + 15, i * 72 + 14 + offset, 45, 44);
-                
-                }
-                
+                offset = j % 2 === 0 ? 36 : 0;
+          
+                canvasContext.drawImage(lakeSmallImage, j * 54 + 15, i * 72 + 14 + offset, 45, 44);
+              
               }
-              
+                  
             }
-            
+          
           }
           
         }
@@ -1243,11 +1223,7 @@ ONLINGA.gamepad = (function() {
             
             // prevent trees from beeing draged while moving the gamepad
             
-            treeElement.mousedown(function(e) {
-            
-              e.preventDefault();
-            
-            });
+            treeElement.mousedown(ONLINGA.gamepad.preventEventDefault);
 
             treeElement.attr('id', 'tree-tile-' + i + '-' + j).css({
             
@@ -1287,11 +1263,7 @@ ONLINGA.gamepad = (function() {
 
             // prevent hills from beeing draged while moving the gamepad
             
-            hillElement.mousedown(function(e) {
-            
-              e.preventDefault();
-            
-            });
+            hillElement.mousedown(ONLINGA.gamepad.preventEventDefault);
 
             hillElement.attr('id', 'hill-tile-' + i + '-' + j).css({
             
@@ -1332,11 +1304,7 @@ ONLINGA.gamepad = (function() {
         
         // prevent military element from beeing draged while moving the gamepad
         
-        militaryElement.mousedown(function(e) {
-        
-          e.preventDefault();
-        
-        });
+        militaryElement.mousedown(ONLINGA.gamepad.preventEventDefault);
 
         militaryElement.attr('id', 'military-tile-' + i).css({
         
@@ -1350,8 +1318,14 @@ ONLINGA.gamepad = (function() {
         
       }
     
-    }
+    },
 
+    preventEventDefault: function(e) {
+          
+      e.preventDefault();
+      
+    }
+    
   };
 
 }());
