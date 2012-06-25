@@ -264,11 +264,11 @@ ONLINGA.gamepad = (function() {
         'img/player-2/rider-6.png'
       ];
       
-      ONLINGA.gamepad.loadImagesRecursive(imageStack);
+      ONLINGA.gamepad.loadImagesRecursive(imageStack, imageStack.length);
     
     },
     
-    loadImagesRecursive: function(imageStack) {
+    loadImagesRecursive: function(imageStack, numberAllImages) {
     
       var image = new Image();
       
@@ -282,7 +282,15 @@ ONLINGA.gamepad = (function() {
         
           imageStack.shift();
         
-          ONLINGA.gamepad.loadImagesRecursive(imageStack);
+          // update progress bar
+          
+          $('#preloader .progress .bar').css({
+          
+            width: (500 / numberAllImages) * (numberAllImages - imageStack.length + 1)
+            
+          });
+        
+          ONLINGA.gamepad.loadImagesRecursive(imageStack, numberAllImages);
         
         };
       
@@ -300,6 +308,12 @@ ONLINGA.gamepad = (function() {
     
     renderSurface: function() {
     
+      // for performance reasons remove preloader from dom
+      
+      $('#preloader').remove();
+      
+      $('#gamepad').removeClass('hidden');
+    
       // for performance reasons grass and stones were rendered as canvas
 
       ONLINGA.gamepad.renderBackground();
@@ -312,7 +326,7 @@ ONLINGA.gamepad = (function() {
     
     initEvents: function() {
     
-      $('body').click(function(e) {
+      $('#wrapper').click(function(e) {
         
         ONLINGA.gamepad.processClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
         
@@ -321,7 +335,8 @@ ONLINGA.gamepad = (function() {
     },
     
     processClick: function(x, y) {
-    
+    console.log(x);
+    console.log(y);
       // get target hexaeder
       
       var i, j, offset;

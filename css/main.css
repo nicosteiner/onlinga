@@ -41,6 +41,34 @@ body {
   display: none;
 }
 
+#preloader {
+  text-align: center;
+  margin-top: 180px;
+}
+
+#preloader p {
+  font-family: Grey Magus, sans serif;
+  color: white;
+  font-size: 50px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+#preloader .progress {
+  width: 500px;
+  height: 15px;
+  margin: 0 auto;
+  border-radius: 3px;
+  background: -moz-linear-gradient(top, #333 0%, #111 100%);
+}
+
+#preloader .progress .bar {
+  width: 0;
+  height: 15px;
+  border-radius: 3px;
+  background: -moz-linear-gradient(top, #ffffff 0%, #a1f1a1 50%, #91e191 51%, #a6f6a6 100%);
+}
+
 #gamepad {
   position: absolute;
   min-width: 560px;
