@@ -252,13 +252,7 @@ ONLINGA.gamepad = (function() {
       military = [],
       militaryPositions = [],
       canvas,
-      canvasContext,
-      meadow = [],
-      hill = [],
-      hexaeder,
-      lakeSmall, lakeBig,
-      fallowMedium = [],
-      fallowBig = [];
+      canvasContext;
 
   // public methods
   
@@ -343,7 +337,7 @@ ONLINGA.gamepad = (function() {
           
           player: 1,
           
-          type: 'knight',
+          type: 'rider',
           
           quantity: 1,
 
@@ -371,7 +365,7 @@ ONLINGA.gamepad = (function() {
           
           player: 2,
           
-          type: 'knight',
+          type: 'archer',
           
           quantity: 3,
 
@@ -385,11 +379,11 @@ ONLINGA.gamepad = (function() {
           
           player: 1,
           
-          type: 'knight',
+          type: 'rider',
           
-          quantity: 4,
+          quantity: 2,
 
-          units: ONLINGA.createKnights(4),
+          units: ONLINGA.createKnights(2),
           
           orientation: 1
           
@@ -413,12 +407,12 @@ ONLINGA.gamepad = (function() {
           
           player: 1,
           
-          type: 'knight',
+          type: 'rider',
           
-          quantity: 6,
+          units: ONLINGA.createKnights(3),
 
-          units: ONLINGA.createKnights(6),
-          
+          quantity: 3,
+       
           orientation: 1
           
         }, {
@@ -476,101 +470,105 @@ ONLINGA.gamepad = (function() {
     
     loadImages: function() {
     
-      lakeBig = new Image();
-
-      lakeBig.src = 'img/tiles/lake-big.png';
-
-      lakeBig.onload = function() {
+      var imageStack = [
+        'img/tiles/lake-big.png',
+        'img/tiles/lake-small.png',
+        'img/tiles/meadow-1.gif',
+        'img/tiles/meadow-2.gif',
+        'img/tiles/meadow-3.gif',
+        'img/tiles/fallow-big-1.png',
+        'img/tiles/fallow-big-2.png',
+        'img/tiles/fallow-medium-1.png',
+        'img/tiles/hill-1.png',
+        'img/tiles/hill-2.png',
+        'img/tiles/hexaeder.png',
+        'img/player-1/knight-1.png',
+        'img/player-1/knight-2.png',
+        'img/player-1/knight-3.png',
+        'img/player-1/knight-4.png',
+        'img/player-1/knight-5.png',
+        'img/player-1/knight-6.png',
+        'img/player-2/knight-1.png',
+        'img/player-2/knight-2.png',
+        'img/player-2/knight-3.png',
+        'img/player-2/knight-4.png',
+        'img/player-2/knight-5.png',
+        'img/player-2/knight-6.png',
+        'img/player-1/archer-1.png',
+        'img/player-1/archer-2.png',
+        'img/player-1/archer-3.png',
+        'img/player-1/archer-4.png',
+        'img/player-1/archer-5.png',
+        'img/player-1/archer-6.png',
+        'img/player-2/archer-1.png',
+        'img/player-2/archer-2.png',
+        'img/player-2/archer-3.png',
+        'img/player-2/archer-4.png',
+        'img/player-2/archer-5.png',
+        'img/player-2/archer-6.png',
+        'img/player-1/rider-1.png',
+        'img/player-1/rider-2.png',
+        'img/player-1/rider-3.png',
+        'img/player-1/rider-4.png',
+        'img/player-1/rider-5.png',
+        'img/player-1/rider-6.png',
+        'img/player-2/rider-1.png',
+        'img/player-2/rider-2.png',
+        'img/player-2/rider-3.png',
+        'img/player-2/rider-4.png',
+        'img/player-2/rider-5.png',
+        'img/player-2/rider-6.png'
+      ];
       
-        lakeSmall = new Image();
-
-        lakeSmall.src = 'img/tiles/lake-small.png';
+      ONLINGA.gamepad.loadImagesRecursive(imageStack, imageStack.length);
+    
+    },
+    
+    loadImagesRecursive: function(imageStack, numberAllImages) {
+    
+      var image = new Image();
       
-        lakeSmall.onload = function() {
+      if (imageStack.length) {
+      
+        image.src = imageStack[0];
         
-          meadow[0] = new Image();
-
-          meadow[0].src = 'img/tiles/meadow-1.gif';
+        image.onload = function() {
         
-          meadow[0].onload = function() {
+          // console.log(image.src.substring(image.src.lastIndexOf('/') + 1, image.src.lastIndexOf('.')));
+        
+          imageStack.shift();
+        
+          // update progress bar
           
-            meadow[1] = new Image();
-
-            meadow[1].src = 'img/tiles/meadow-2.gif';
+          $('#preloader .progress .bar').css({
           
-            meadow[1].onload = function() {
+            width: (500 / numberAllImages) * (numberAllImages - imageStack.length + 1)
             
-              meadow[2] = new Image();
-
-              meadow[2].src = 'img/tiles/meadow-3.gif';
-            
-              meadow[2].onload = function() {
-              
-                fallowBig[0] = new Image();
-
-                fallowBig[0].src = 'img/tiles/fallow-big-1.png';
-              
-                fallowBig[0].onload = function() {
-                
-                  fallowBig[1] = new Image();
-
-                  fallowBig[1].src = 'img/tiles/fallow-big-2.png';
-                
-                  fallowBig[1].onload = function() {
-                  
-                    fallowMedium[0] = new Image();
-
-                    fallowMedium[0].src = 'img/tiles/fallow-medium-1.png';
-                  
-                    fallowMedium[0].onload = function() {
-                    
-                      hill[0] = new Image();
-
-                      hill[0].src = 'img/tiles/hill-1.png';
-                    
-                      hill[0].onload = function() {
-                      
-                        hill[1] = new Image();
-
-                        hill[1].src = 'img/tiles/hill-2.png';
-                      
-                        hill[1].onload = function() {
-                        
-                          hexaeder = new Image();
-
-                          hexaeder.src = 'img/tiles/hexaeder.png';
-                        
-                          hexaeder.onload = function() {
-                          
-                            ONLINGA.gamepad.renderSurface();
-                            
-                            ONLINGA.gamepad.initEvents();
-                            
-                          };
-                        
-                        };
-                      
-                      };
-                    
-                    };
-                  
-                  };
-                
-                };
-              
-              };
-          
-            };
+          });
         
-          };
+          ONLINGA.gamepad.loadImagesRecursive(imageStack, numberAllImages);
         
         };
-    
-      };
       
+      } else {
+      
+        ONLINGA.gamepad.renderSurface();
+                            
+        ONLINGA.gamepad.initEvents();
+
+        return true;
+        
+      }
+    
     },
     
     renderSurface: function() {
+    
+      // for performance reasons remove preloader from dom
+      
+      $('#preloader').remove();
+      
+      $('#gamepad').removeClass('hidden');
     
       // for performance reasons grass and stones were rendered as canvas
 
@@ -584,7 +582,7 @@ ONLINGA.gamepad = (function() {
     
     initEvents: function() {
     
-      $('body').click(function(e) {
+      $('#wrapper').click(function(e) {
         
         ONLINGA.gamepad.processClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
         
@@ -593,7 +591,8 @@ ONLINGA.gamepad = (function() {
     },
     
     processClick: function(x, y) {
-    
+    console.log(x);
+    console.log(y);
       // get target hexaeder
       
       var i, j, offset;
@@ -709,12 +708,8 @@ ONLINGA.gamepad = (function() {
       
           } else {
           
-            if (validClick) {
+            if (!validClick) {
             
-              // maybe communicate something
-            
-            } else {
-          
               // no valid target/click (click outside of range)
             
               ONLINGA.gamepad.deselectAll();
@@ -821,7 +816,7 @@ ONLINGA.gamepad = (function() {
       
       xOrientation = x - ONLINGA.gamepad.selectedMilitary.position.x;
       
-      yOrientation = y - ONLINGA.gamepad.selectedMilitary.position.y - (x % 2);;
+      yOrientation = y - ONLINGA.gamepad.selectedMilitary.position.y - (x % 2);
       
       // there are 6 orientations possible
       
@@ -895,6 +890,8 @@ ONLINGA.gamepad = (function() {
     
     setMilitaryPosition: function(x, y) {
     
+      var militaryElement, offsetY;
+    
       ONLINGA.gamepad.selectedMilitary.position.x = x;
       
       ONLINGA.gamepad.selectedMilitary.position.y = y;
@@ -917,7 +914,7 @@ ONLINGA.gamepad = (function() {
     
     moveMilitaryToPosition: function(x, y) {
     
-      var militaryElement, treeElement, offsetY, orientation;
+      var treeElement;
     
       if (ONLINGA.gamepad.selectedMilitary) {
       
@@ -1005,7 +1002,7 @@ ONLINGA.gamepad = (function() {
         
           if (ONLINGA.gamepad.selectedMilitary.type === 'knight') {
           
-            range = 2; // eigentlich 1
+            range = 1;
           
           } else if (ONLINGA.gamepad.selectedMilitary.type === 'archer') {
         
@@ -1286,20 +1283,50 @@ ONLINGA.gamepad = (function() {
     
     renderBackground: function() {
     
-      var i, j, meadowElement, offset;
+      var i, j, meadowImage = [],
+          hexagonImage, offset,
+          fallowImage = [];
     
       canvasContext.fillStyle = 'rgba(140, 164, 52, 1)';
       canvasContext.fillRect(0, 0, 570, 470);
     
+      // create images
+    
+      meadowImage[0] = new Image();
+          
+      meadowImage[0].src = 'img/tiles/meadow-1.gif';
+
+      meadowImage[1] = new Image();
+          
+      meadowImage[1].src = 'img/tiles/meadow-2.gif';
+
+      meadowImage[2] = new Image();
+          
+      meadowImage[2].src = 'img/tiles/meadow-3.gif';
+
+      hexagonImage = new Image();
+
+      hexagonImage.src = 'img/tiles/hexaeder.png';
+
+      fallowImage[0] = new Image();
+
+      fallowImage[0].src = 'img/tiles/fallow-medium-1.png';
+      
+      fallowImage[1] = new Image();
+      
+      fallowImage[1].src = 'img/tiles/fallow-big-1.png';
+      
+      fallowImage[2] = new Image();
+      
+      fallowImage[2].src = 'img/tiles/fallow-big-2.png';
+        
       for (i = 0; i < underground.length; i += 1) {
     
         for (j = 0; j < underground[i].length; j += 1) {
     
-          meadowElement = meadow[$.random(3)];
-
           offset = j % 2 === 0 ? 36 : 0;
           
-          canvasContext.drawImage(meadowElement, j * 54, i * 72 + offset, 74, 73);
+          canvasContext.drawImage(meadowImage[$.random(3)], j * 54, i * 72 + offset, 74, 73);
           
         }
         
@@ -1313,7 +1340,7 @@ ONLINGA.gamepad = (function() {
           
           if (underground[i][j] === 1 && underground[i][j + 1] === 1 && underground[i + 1][j + 1] === 1 && underground[i][j + 2] !== 1) {
    
-            canvasContext.drawImage(fallowMedium[0], j * 54 + 4, i * 72 + 8 + offset, 120, 130);
+            canvasContext.drawImage(fallowImage[0], j * 54 + 4, i * 72 + 8 + offset, 120, 130);
           
           }
           
@@ -1326,13 +1353,13 @@ ONLINGA.gamepad = (function() {
           
           if (underground[i][j] === 1 && underground[i][j + 1] === 1 && underground[i + 1][j + 1] === 1 && underground[i][j + 2] === 1) {
    
-            canvasContext.drawImage(fallowBig[0], j * 54 + 4, i * 72 + 8 + offset, 171, 132);
+            canvasContext.drawImage(fallowImage[1], j * 54 + 4, i * 72 + 8 + offset, 171, 132);
             
           }
           
           if (underground[i][j] === 2 && underground[i][j + 1] === 2 && underground[i + 1][j + 1] === 2 && underground[i][j + 2] === 2) {
    
-            canvasContext.drawImage(fallowBig[1], j * 54 + 4, i * 72 + 8 + offset, 171, 132);
+            canvasContext.drawImage(fallowImage[2], j * 54 + 4, i * 72 + 8 + offset, 171, 132);
             
           }
           
@@ -1348,7 +1375,7 @@ ONLINGA.gamepad = (function() {
         
           offset = j % 2 === 0 ? 36 : 0;
           
-          canvasContext.drawImage(hexaeder, j * 54, i * 72 + offset, 74, 73);
+          canvasContext.drawImage(hexagonImage, j * 54, i * 72 + offset, 74, 73);
           
         }
         
@@ -1391,50 +1418,48 @@ ONLINGA.gamepad = (function() {
     
     renderObjects: function() {
     
-      var i, j, offset, offsetX, offsetY, treeElement, hillElement;
-    
+      var i, j, offset, offsetX, offsetY, lakeSmallImage, lakeBigImage, treeElement, hillElement;
+
+      // load images
+      
+      lakeSmallImage = new Image();
+      
+      lakeSmallImage.src = 'img/tiles/lake-small.png';
+
+      lakeBigImage = new Image();
+      
+      lakeBigImage.src = 'img/tiles/lake-big.png';
+      
       // small and big lakes
     
       for (i = 0; i < surface.length; i += 1) {
     
         for (j = 0; j < surface[i].length; j += 1) {
     
-          if (surface[i][j] === 1 && surface[i][j - 1] === 1 && surface[i + 1][j] === 1) {
+          if (!(surface[i][j] === 1 && surface[i][j - 1] === 1 && surface[i + 1][j] === 1) && !(surface[i][j] === 1 && surface[i - 1][j - 1] === 1 && surface[i - 1][j] === 1)) {
    
-            // ignore
-            
-          } else {
-          
-            if (surface[i][j] === 1 && surface[i - 1][j - 1] === 1 && surface[i - 1][j] === 1) {
+            if (surface[i][j] === 1 && surface[i][j + 1] === 1 && surface[i + 1][j + 1] === 1 && !(surface[i][j] === 1 && surface[i][j - 1] === 1 && surface[i + 1][j] === 1) && !(surface[i][j] === 1 && surface[i - 1][j - 1] === 1 && surface[i - 1][j] === 1)) {
     
-              // ignore
+              // draw big lake
               
+              offset = j % 2 === 1 ? 36 : 0;
+        
+              canvasContext.drawImage(lakeBigImage, j * 54 + 4, i * 72 + 8 + offset, 122, 134);
+            
             } else {
-            
-              if (surface[i][j] === 1 && surface[i][j + 1] === 1 && surface[i + 1][j + 1] === 1) {
-      
-                // draw
-                
-                offset = j % 2 === 1 ? 36 : 0;
           
-                canvasContext.drawImage(lakeBig, j * 54 + 4, i * 72 + 8 + offset, 122, 134);
+              if (surface[i][j] === 1) {
               
-              } else {
-            
-                if (surface[i][j] === 1) {
+                // draw small lake
                 
-                  // draw
-                  
-                  offset = j % 2 === 0 ? 36 : 0;
-            
-                  canvasContext.drawImage(lakeSmall, j * 54 + 15, i * 72 + 14 + offset, 45, 44);
-                
-                }
-                
+                offset = j % 2 === 0 ? 36 : 0;
+          
+                canvasContext.drawImage(lakeSmallImage, j * 54 + 15, i * 72 + 14 + offset, 45, 44);
+              
               }
-              
+                  
             }
-            
+          
           }
           
         }
@@ -1471,11 +1496,7 @@ ONLINGA.gamepad = (function() {
             
             // prevent trees from beeing draged while moving the gamepad
             
-            treeElement.mousedown(function(e) {
-            
-              e.preventDefault();
-            
-            });
+            treeElement.mousedown(ONLINGA.gamepad.preventEventDefault);
 
             treeElement.attr('id', 'tree-tile-' + i + '-' + j).css({
             
@@ -1515,11 +1536,7 @@ ONLINGA.gamepad = (function() {
 
             // prevent hills from beeing draged while moving the gamepad
             
-            hillElement.mousedown(function(e) {
-            
-              e.preventDefault();
-            
-            });
+            hillElement.mousedown(ONLINGA.gamepad.preventEventDefault);
 
             hillElement.attr('id', 'hill-tile-' + i + '-' + j).css({
             
@@ -1560,11 +1577,7 @@ ONLINGA.gamepad = (function() {
         
         // prevent military element from beeing draged while moving the gamepad
         
-        militaryElement.mousedown(function(e) {
-        
-          e.preventDefault();
-        
-        });
+        militaryElement.mousedown(ONLINGA.gamepad.preventEventDefault);
 
         militaryElement.attr('id', 'military-tile-' + i).css({
         
@@ -1578,8 +1591,14 @@ ONLINGA.gamepad = (function() {
         
       }
     
-    }
+    },
 
+    preventEventDefault: function(e) {
+          
+      e.preventDefault();
+      
+    }
+    
   };
 
 }());
