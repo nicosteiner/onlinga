@@ -274,11 +274,15 @@ ONLINGA.gamepad = (function() {
       
       if (imageStack.length) {
       
+        // load first image from stack
+      
         image.src = imageStack[0];
         
         image.onload = function() {
         
           // console.log(image.src.substring(image.src.lastIndexOf('/') + 1, image.src.lastIndexOf('.')));
+        
+          // remove loaded image from stack
         
           imageStack.shift();
         
@@ -289,6 +293,8 @@ ONLINGA.gamepad = (function() {
             width: (500 / numberAllImages) * (numberAllImages - imageStack.length + 1)
             
           });
+        
+          // next iteration with remainding stack
         
           ONLINGA.gamepad.loadImagesRecursive(imageStack, numberAllImages);
         
@@ -320,6 +326,8 @@ ONLINGA.gamepad = (function() {
     
       ONLINGA.gamepad.renderMilitary();
 
+      // trees and hills are rendered as dom nodes
+      
       ONLINGA.gamepad.renderObjects();
 
     },
