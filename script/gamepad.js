@@ -122,6 +122,8 @@ ONLINGA.Unit.prototype.resetCurrentMovesToMax = function() {
 
 }
 
+// Knight
+
 ONLINGA.Knight = function() {
 
 }
@@ -141,6 +143,63 @@ ONLINGA.Knight.prototype.damage = 2;
 ONLINGA.Knight.prototype.maxHealth = 4;
 
 ONLINGA.Knight.prototype.currentHealth = 4;
+
+// Rider
+
+ONLINGA.Rider = function() {
+
+}
+
+ONLINGA.Rider.prototype = new ONLINGA.Unit();
+
+ONLINGA.Rider.prototype.constructor = ONLINGA.Rider;
+
+ONLINGA.Rider.prototype.type = "rider";
+
+ONLINGA.Rider.prototype.attack = 6;
+
+ONLINGA.Rider.prototype.defense = 4;
+
+ONLINGA.Rider.prototype.damage = 3;
+
+ONLINGA.Rider.prototype.maxHealth = 6;
+
+ONLINGA.Rider.prototype.currentHealth = 6;
+
+ONLINGA.Rider.prototype.remainingMoves = 3;
+
+ONLINGA.Rider.prototype.maxMoves = 3;
+
+//Archer
+
+ONLINGA.Archer = function() {
+
+}
+
+ONLINGA.Archer.prototype = new ONLINGA.Unit();
+
+ONLINGA.Archer.prototype.constructor = ONLINGA.Archer;
+
+ONLINGA.Archer.prototype.type = "archer";
+
+ONLINGA.Archer.prototype.attack = 4;
+
+ONLINGA.Archer.prototype.defense = 2;
+
+ONLINGA.Archer.prototype.damage = 2;
+
+ONLINGA.Archer.prototype.maxHealth = 2;
+
+ONLINGA.Archer.prototype.currentHealth = 2;
+
+ONLINGA.Archer.prototype.remainingMoves = 2;
+
+ONLINGA.Archer.prototype.maxMoves = 2;
+
+ONLINGA.Archer.prototype.attackRange = 1;
+
+ONLINGA.Archer.prototype.attackPercentageForRange = [100, 75];
+
 
 /*ONLINGA.AbstractAssault = function() {
 
@@ -204,6 +263,8 @@ ONLINGA.CombatManager.prototype.handleCombatTurnLooser = function(loosers, damag
   looser = loosers.units[loosers.units.length-1]; // get the last unit from units array
 
   looser.reduceHealth(damagePoints);
+
+  ONLINGA.gamepad.showAttackHits(damagePoints); //ToDo: function needs delay and info which army got hit.
   
   if (looser.isDead()) {
 
@@ -238,6 +299,34 @@ ONLINGA.createKnights = function(amount) {
   }
 
   return knights;
+  
+}
+
+ONLINGA.createRiders = function(amount) {
+
+  var riders = [];
+
+  for (var i = 0; i < amount; i++) {
+
+    riders.push(new ONLINGA.Rider())
+
+  }
+
+  return riders;
+  
+}
+
+ONLINGA.createArchers = function(amount) {
+
+  var archers = [];
+
+  for (var i = 0; i < amount; i++) {
+
+    archers.push(new ONLINGA.Archer())
+
+  }
+
+  return archers;
   
 }
 
@@ -339,9 +428,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
-          quantity: 1,
-
-          units: ONLINGA.createKnights(1),
+          units: ONLINGA.createRiders(1),
           
           orientation: 1
           
@@ -353,8 +440,6 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 2,
-
           units: ONLINGA.createKnights(2),
           
           orientation: 1
@@ -367,9 +452,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'archer',
           
-          quantity: 3,
-
-          units: ONLINGA.createKnights(3),
+          units: ONLINGA.createArchers(3),
           
           orientation: 1
           
@@ -381,9 +464,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
-          quantity: 2,
-
-          units: ONLINGA.createKnights(2),
+          units: ONLINGA.createRiders(2),
           
           orientation: 1
           
@@ -395,8 +476,6 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 5,
-
           units: ONLINGA.createKnights(5),
           
           orientation: 1
@@ -409,10 +488,8 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
-          units: ONLINGA.createKnights(3),
+          units: ONLINGA.createRiders(3),
 
-          quantity: 3,
-       
           orientation: 1
           
         }, {
@@ -423,8 +500,6 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          quantity: 5,
-
           units: ONLINGA.createKnights(5),
           
           orientation: 1
@@ -695,8 +770,6 @@ ONLINGA.gamepad = (function() {
               // attack     
 
               combatManager.processCloseAttack(ONLINGA.gamepad.selectedMilitary, possibleEnemy);
-
-              ONLINGA.gamepad.showAttackHits(1);
             
             } else {
             
@@ -1569,7 +1642,7 @@ ONLINGA.gamepad = (function() {
         militaryElement = $('.military').first().clone().appendTo('#gamepad');
         
         militaryElement.addClass('military');
-        militaryElement.addClass(military[i].type + '-' + military[i].player + '-' + military[i].quantity);
+        militaryElement.addClass(military[i].type + '-' + military[i].player + '-' + military[i].units.length);
         
         offsetY = military[i].position.x % 2 === 0 ? 36 : 0;
 
