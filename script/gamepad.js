@@ -1,204 +1,202 @@
 if (typeof ONLINGA === 'undefined') { ONLINGA = {}; }
 
-ONLINGA.Unit = function() {
+ONLINGA.Units = ONLINGA.Units || {};
 
-}
+ONLINGA.Units.Unit = function() {};
 
-ONLINGA.Unit.prototype.type = null;
+ONLINGA.Units.Unit.prototype = {
 
-ONLINGA.Unit.prototype.attack = 1;
+  type: null,
 
-ONLINGA.Unit.prototype.defense = 1;
+  attack: 1,
 
-ONLINGA.Unit.prototype.damage = 1;
+  defense: 1,
 
-ONLINGA.Unit.prototype.currentHealth = 1;
+  damage: 1,
 
-ONLINGA.Unit.prototype.maxHealth = 1;
+  currentHealth: 1,
 
-ONLINGA.Unit.prototype.remainingMoves = 1;
+  maxHealth: 1,
 
-ONLINGA.Unit.prototype.maxMoves = 1;
+  remainingMoves: 1,
 
-ONLINGA.Unit.prototype.attackRange = 1;
+  maxMoves: 1,
 
-ONLINGA.Unit.prototype.attackPercentageForRange = [100];
+  attackRange: 1,
 
-ONLINGA.Unit.prototype.getAttack = function() {
+  attackPercentageForRange: [100],
 
-  return this.attack;
+  getAttack: function() {
 
-}
+    return this.attack;
 
-ONLINGA.Unit.prototype.getType = function() {
+  },
 
-  return this.type;
+  getType: function() {
 
-}
+    return this.type;
 
-ONLINGA.Unit.prototype.getDefense = function() {
+  },
 
-  return this.defense;
+  getDefense: function() {
 
-}
+    return this.defense;
 
-ONLINGA.Unit.prototype.getDamage = function() {
+  },
 
-  return this.damage;
+  getDamage: function() {
 
-}
+    return this.damage;
 
-ONLINGA.Unit.prototype.getCurrentHealth = function() {
+  },
 
-  return this.currentHealth;
+  getCurrentHealth: function() {
 
-}
+    return this.currentHealth;
 
-ONLINGA.Unit.prototype.getRemainingMoves = function() {
+  },
 
-  return this.remainingMoves;
+  getRemainingMoves: function() {
 
-}
+    return this.remainingMoves;
 
-ONLINGA.Unit.prototype.getMaxMoves = function() {
+  },
 
-  return this.maxMoves;
+  getMaxMoves: function() {
 
-}
+    return this.maxMoves;
 
-ONLINGA.Unit.prototype.getAttackRange = function() {
+  },
 
-  return this.attackRange;
+  getAttackRange: function() {
 
-}
+    return this.attackRange;
 
-ONLINGA.Unit.prototype.heal = function(healingPoints) {
+  },
 
-  // ToDo: Add testing if healingPoints is type int
+  heal: function(healingPoints) {
 
-  if (healingPoints + this.currentHealth >= this.maxHealth) {
+    // ToDo: Add testing if healingPoints is type int
 
-    this.currentHealth = this.maxHealth;
+    if (healingPoints + this.currentHealth >= this.maxHealth) {
 
-  } else {
+      this.currentHealth = this.maxHealth;
 
-    this.currentHealth = this.currentHealth + healingPoints;
+    } else {
+
+      this.currentHealth = this.currentHealth + healingPoints;
+
+    }
+
+  },
+
+  reduceHealth: function(damagePoints) {
+
+    if (this.currentHealth - damagePoints <= 0) {
+
+      // Unit is dead, units with currentHealth = 0 will be removed from ONLINGA.CombatManager.
+
+      this.currentHealth = 0;
+
+    } else {
+
+      this.currentHealth = this.currentHealth - damagePoints;
+
+    }
+
+  },
+
+  isDead: function() {
+
+    if (this.currentHealth > 0) {
+
+      return false;
+
+    }
+
+    return true;
+
+  },
+
+  resetCurrentMovesToMax: function() {
+
+    this.currentMoves = this.maxMoves;
 
   }
-
-}
-
-ONLINGA.Unit.prototype.reduceHealth = function(damagePoints) {
-
-  if (this.currentHealth - damagePoints <= 0) {
-
-    // Unit is dead, units with currentHealth = 0 will be removed from ONLINGA.CombatManager.
-
-    this.currentHealth = 0;
-
-  } else {
-
-    this.currentHealth = this.currentHealth - damagePoints;
-
-  }
-
-}
-
-ONLINGA.Unit.prototype.isDead = function() {
-
-	if (this.currentHealth > 0) {
-
-    return false;
-
-  }
-
-  return true;
-
-}
-
-ONLINGA.Unit.prototype.resetCurrentMovesToMax = function() {
-
-  this.currentMoves = this.maxMoves;
-
-}
+  
+};
 
 // Knight
 
-ONLINGA.Knight = function() {
+ONLINGA.Units.Knight = function() {};
 
-}
+ONLINGA.Units.Knight.prototype = new ONLINGA.Units.Unit();
 
-ONLINGA.Knight.prototype = new ONLINGA.Unit();
+ONLINGA.Units.Knight.prototype.constructor = ONLINGA.Units.Knight;
 
-ONLINGA.Knight.prototype.constructor = ONLINGA.Knight;
+ONLINGA.Units.Knight.prototype.type = "knight";
 
-ONLINGA.Knight.prototype.type = "knight";
+ONLINGA.Units.Knight.prototype.attack = 4;
 
-ONLINGA.Knight.prototype.attack = 4;
+ONLINGA.Units.Knight.prototype.defense = 4;
 
-ONLINGA.Knight.prototype.defense = 4;
+ONLINGA.Units.Knight.prototype.damage = 2;
 
-ONLINGA.Knight.prototype.damage = 2;
+ONLINGA.Units.Knight.prototype.maxHealth = 4;
 
-ONLINGA.Knight.prototype.maxHealth = 4;
-
-ONLINGA.Knight.prototype.currentHealth = 4;
+ONLINGA.Units.Knight.prototype.currentHealth = 4;
 
 // Rider
 
-ONLINGA.Rider = function() {
+ONLINGA.Units.Rider = function() {};
 
-}
+ONLINGA.Units.Rider.prototype = new ONLINGA.Units.Unit();
 
-ONLINGA.Rider.prototype = new ONLINGA.Unit();
+ONLINGA.Units.Rider.prototype.constructor = ONLINGA.Units.Rider;
 
-ONLINGA.Rider.prototype.constructor = ONLINGA.Rider;
+ONLINGA.Units.Rider.prototype.type = "rider";
 
-ONLINGA.Rider.prototype.type = "rider";
+ONLINGA.Units.Rider.prototype.attack = 6;
 
-ONLINGA.Rider.prototype.attack = 6;
+ONLINGA.Units.Rider.prototype.defense = 4;
 
-ONLINGA.Rider.prototype.defense = 4;
+ONLINGA.Units.Rider.prototype.damage = 3;
 
-ONLINGA.Rider.prototype.damage = 3;
+ONLINGA.Units.Rider.prototype.maxHealth = 6;
 
-ONLINGA.Rider.prototype.maxHealth = 6;
+ONLINGA.Units.Rider.prototype.currentHealth = 6;
 
-ONLINGA.Rider.prototype.currentHealth = 6;
+ONLINGA.Units.Rider.prototype.remainingMoves = 3;
 
-ONLINGA.Rider.prototype.remainingMoves = 3;
-
-ONLINGA.Rider.prototype.maxMoves = 3;
+ONLINGA.Units.Rider.prototype.maxMoves = 3;
 
 //Archer
 
-ONLINGA.Archer = function() {
+ONLINGA.Units.Archer = function() {};
 
-}
+ONLINGA.Units.Archer.prototype = new ONLINGA.Units.Unit();
 
-ONLINGA.Archer.prototype = new ONLINGA.Unit();
+ONLINGA.Units.Archer.prototype.constructor = ONLINGA.Units.Archer;
 
-ONLINGA.Archer.prototype.constructor = ONLINGA.Archer;
+ONLINGA.Units.Archer.prototype.type = "archer";
 
-ONLINGA.Archer.prototype.type = "archer";
+ONLINGA.Units.Archer.prototype.attack = 4;
 
-ONLINGA.Archer.prototype.attack = 4;
+ONLINGA.Units.Archer.prototype.defense = 2;
 
-ONLINGA.Archer.prototype.defense = 2;
+ONLINGA.Units.Archer.prototype.damage = 2;
 
-ONLINGA.Archer.prototype.damage = 2;
+ONLINGA.Units.Archer.prototype.maxHealth = 2;
 
-ONLINGA.Archer.prototype.maxHealth = 2;
+ONLINGA.Units.Archer.prototype.currentHealth = 2;
 
-ONLINGA.Archer.prototype.currentHealth = 2;
+ONLINGA.Units.Archer.prototype.remainingMoves = 2;
 
-ONLINGA.Archer.prototype.remainingMoves = 2;
+ONLINGA.Units.Archer.prototype.maxMoves = 2;
 
-ONLINGA.Archer.prototype.maxMoves = 2;
+ONLINGA.Units.Archer.prototype.attackRange = 1;
 
-ONLINGA.Archer.prototype.attackRange = 1;
-
-ONLINGA.Archer.prototype.attackPercentageForRange = [100, 75];
+ONLINGA.Units.Archer.prototype.attackPercentageForRange = [100, 75];
 
 
 /*ONLINGA.AbstractAssault = function() {
@@ -211,20 +209,18 @@ ONLINGA.DistanceAssault = function(attacker, defender) {
 
 }*/
 
-ONLINGA.CombatManager = function() {
+ONLINGA.Units.CombatManager = {
 
-}
+  combatTurns: 5,
 
-ONLINGA.CombatManager.prototype.combatTurns = 5;
-
-ONLINGA.CombatManager.prototype.processCloseAttack = function(attackingArmy, defendingArmy) {
+  processCloseAttack: function(attackingArmy, defendingArmy) {
 
     var totalAttackPoints = attackingArmy.units.length * attackingArmy.units[0].getAttack(),
         totalDefensePoints = defendingArmy.units.length * defendingArmy.units[0].getDefense(), //add field defense and position deduction
         totalCombatPoints = totalAttackPoints + totalDefensePoints,
-        randomResult;
+        randomResult, i, damagePoints;
 
-    for (var i = 0; i < this.combatTurns; i++) {
+    for (i = 0; i < this.combatTurns; i += 1) {
 
       randomResult = Math.ceil((Math.random() * totalCombatPoints));
 
@@ -232,7 +228,7 @@ ONLINGA.CombatManager.prototype.processCloseAttack = function(attackingArmy, def
 
         // attacker wins round.
 
-        var damagePoints = attackingArmy.units[0].getDamage();
+        damagePoints = attackingArmy.units[0].getDamage();
 
         this.handleCombatTurnLooser(defendingArmy, damagePoints);
 
@@ -240,7 +236,7 @@ ONLINGA.CombatManager.prototype.processCloseAttack = function(attackingArmy, def
 
         // defender wins round.
 
-        var damagePoints = defendingArmy.units[0].getDamage();
+        damagePoints = defendingArmy.units[0].getDamage();
 
         this.handleCombatTurnLooser(attackingArmy, damagePoints);
 
@@ -256,79 +252,88 @@ ONLINGA.CombatManager.prototype.processCloseAttack = function(attackingArmy, def
 
     }
 
-}
-
-ONLINGA.CombatManager.prototype.handleCombatTurnLooser = function(loosers, damagePoints) {
-
-  looser = loosers.units[loosers.units.length-1]; // get the last unit from units array
-
-  looser.reduceHealth(damagePoints);
-
-  ONLINGA.gamepad.showAttackHits(damagePoints); //ToDo: function needs delay and info which army got hit.
+  },
   
-  if (looser.isDead()) {
+  handleCombatTurnLooser: function(loosers, damagePoints) {
 
-    loosers.units.pop(); // Remove the last unit from units array
- 
-    // ToDo: Give feedback to user
+    var looser = loosers.units[loosers.units.length-1]; // get the last unit from units array
 
-    if (loosers.units.length === 0) {
+    looser.reduceHealth(damagePoints);
 
-      // all units from the army are dead
+    ONLINGA.gamepad.showAttackHits(damagePoints); //ToDo: function needs delay and info which army got hit.
+    
+    if (looser.isDead()) {
 
-      // ToDo: Remove loosers from ONLINGA.gamepad.military and give feedback to user
+      loosers.units.pop(); // Remove the last unit from units array
+   
+      // ToDo: Give feedback to user
 
-      return;
+      if (loosers.units.length === 0) {
+
+        // all units from the army are dead
+
+        // ToDo: Remove loosers from ONLINGA.gamepad.military and give feedback to user
+
+        return;
+
+      }
+
+      // ToDo: Change looser image to image with one unit less
+
+    }      
+
+  }
+  
+};
+
+ONLINGA.Units.Factory = {
+
+  createKnights: function(amount) {
+
+    var knights = [],
+        i;
+
+    for (i = 0; i < amount; i += 1) {
+
+      knights.push(new ONLINGA.Units.Knight());
 
     }
 
-    // ToDo: Change looser image to image with one unit less
+    return knights;
+    
+  },
 
-  }      
+  createRiders: function(amount) {
 
-}
+    var riders = [],
+        i;
 
-ONLINGA.createKnights = function(amount) {
+    for (i = 0; i < amount; i += 1) {
 
-  var knights = [];
+      riders.push(new ONLINGA.Units.Rider());
 
-  for (var i = 0; i < amount; i++) {
+    }
 
-    knights.push(new ONLINGA.Knight())
+    return riders;
+    
+  },
 
+  createArchers: function(amount) {
+
+    var archers = [],
+        i;
+
+    for (i = 0; i < amount; i += 1) {
+
+      archers.push(new ONLINGA.Units.Archer());
+
+    }
+
+    return archers;
+    
   }
-
-  return knights;
   
-}
-
-ONLINGA.createRiders = function(amount) {
-
-  var riders = [];
-
-  for (var i = 0; i < amount; i++) {
-
-    riders.push(new ONLINGA.Rider())
-
-  }
-
-  return riders;
-  
-}
-
-ONLINGA.createArchers = function(amount) {
-
-  var archers = [];
-
-  for (var i = 0; i < amount; i++) {
-
-    archers.push(new ONLINGA.Archer())
-
-  }
-
-  return archers;
-  
-}
+};
 
 ONLINGA.gamepad = (function() {
 
@@ -337,7 +342,6 @@ ONLINGA.gamepad = (function() {
   var underground = [],
       surface = [],
       props = [],
-      combatManager = new ONLINGA.CombatManager(),
       military = [],
       militaryPositions = [],
       canvas,
@@ -428,7 +432,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
-          units: ONLINGA.createRiders(1),
+          units: ONLINGA.Units.Factory.createRiders(1),
           
           orientation: 1
           
@@ -440,7 +444,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          units: ONLINGA.createKnights(2),
+          units: ONLINGA.Units.Factory.createKnights(2),
           
           orientation: 1
           
@@ -452,7 +456,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'archer',
           
-          units: ONLINGA.createArchers(3),
+          units: ONLINGA.Units.Factory.createArchers(3),
           
           orientation: 1
           
@@ -464,7 +468,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
-          units: ONLINGA.createRiders(2),
+          units: ONLINGA.Units.Factory.createRiders(2),
           
           orientation: 1
           
@@ -476,7 +480,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          units: ONLINGA.createKnights(5),
+          units: ONLINGA.Units.Factory.createKnights(5),
           
           orientation: 1
           
@@ -488,7 +492,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
-          units: ONLINGA.createRiders(3),
+          units: ONLINGA.Units.Factory.createRiders(3),
 
           orientation: 1
           
@@ -500,7 +504,7 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
-          units: ONLINGA.createKnights(5),
+          units: ONLINGA.Units.Factory.createKnights(5),
           
           orientation: 1
           
@@ -674,8 +678,7 @@ ONLINGA.gamepad = (function() {
     },
     
     processClick: function(x, y) {
-    console.log(x);
-    console.log(y);
+    
       // get target hexaeder
       
       var i, j, offset;
@@ -777,7 +780,7 @@ ONLINGA.gamepad = (function() {
             
               // attack     
 
-              combatManager.processCloseAttack(ONLINGA.gamepad.selectedMilitary, possibleEnemy);
+              ONLINGA.Units.CombatManager.processCloseAttack(ONLINGA.gamepad.selectedMilitary, possibleEnemy);
             
             } else {
             
