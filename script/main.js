@@ -1,6 +1,6 @@
 if (typeof ONLINGA === 'undefined') { ONLINGA = {}; }
 
-ONLINGA.main = (function() {
+ONLINGA.Main = (function() {
 
   // private variables
 
@@ -12,15 +12,13 @@ ONLINGA.main = (function() {
 
     init: function() {
     
-      ONLINGA.gamepad.init();
-      
       $(window).resize(function() {
         
-        ONLINGA.main.updateWrapper();
+        ONLINGA.Main.updateWrapper();
         
       });
       
-      ONLINGA.main.updateWrapper();
+      ONLINGA.Main.updateWrapper();
     
     },
 
@@ -78,16 +76,16 @@ ONLINGA.main = (function() {
       
       }
     
-      ONLINGA.main.wrapperWidth = $('#wrapper').width();
+      ONLINGA.Main.wrapperWidth = $('#wrapper').width();
       
-      ONLINGA.main.wrapperHeight = $('#wrapper').height();
+      ONLINGA.Main.wrapperHeight = $('#wrapper').height();
       
-      ONLINGA.main.wrapperOffset = $('#wrapper').offset();
+      ONLINGA.Main.wrapperOffset = $('#wrapper').offset();
 
     }
     
   }
 
-})();
+}());
 
-ONLINGA.main.init();
+ONLINGA.Main.init();

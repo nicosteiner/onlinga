@@ -1,341 +1,4 @@
-if (typeof ONLINGA === 'undefined') { ONLINGA = {}; }
-
-ONLINGA.Units = ONLINGA.Units || {};
-
-ONLINGA.Units.Unit = function() {};
-
-ONLINGA.Units.Unit.prototype = {
-
-  type: null,
-
-  attack: 1,
-
-  defense: 1,
-
-  damage: 1,
-
-  currentHealth: 1,
-
-  maxHealth: 1,
-
-  remainingMoves: 1,
-
-  maxMoves: 1,
-
-  attackRange: 1,
-
-  attackPercentageForRange: [100],
-
-  getAttack: function() {
-
-    return this.attack;
-
-  },
-
-  getType: function() {
-
-    return this.type;
-
-  },
-
-  getDefense: function() {
-
-    return this.defense;
-
-  },
-
-  getDamage: function() {
-
-    return this.damage;
-
-  },
-
-  getCurrentHealth: function() {
-
-    return this.currentHealth;
-
-  },
-
-  getRemainingMoves: function() {
-
-    return this.remainingMoves;
-
-  },
-
-  getMaxMoves: function() {
-
-    return this.maxMoves;
-
-  },
-
-  getAttackRange: function() {
-
-    return this.attackRange;
-
-  },
-
-  heal: function(healingPoints) {
-
-    // ToDo: Add testing if healingPoints is type int
-
-    if (healingPoints + this.currentHealth >= this.maxHealth) {
-
-      this.currentHealth = this.maxHealth;
-
-    } else {
-
-      this.currentHealth = this.currentHealth + healingPoints;
-
-    }
-
-  },
-
-  reduceHealth: function(damagePoints) {
-
-    if (this.currentHealth - damagePoints <= 0) {
-
-      // Unit is dead, units with currentHealth = 0 will be removed from ONLINGA.CombatManager.
-
-      this.currentHealth = 0;
-
-    } else {
-
-      this.currentHealth = this.currentHealth - damagePoints;
-
-    }
-
-  },
-
-  isDead: function() {
-
-    if (this.currentHealth > 0) {
-
-      return false;
-
-    }
-
-    return true;
-
-  },
-
-  resetCurrentMovesToMax: function() {
-
-    this.currentMoves = this.maxMoves;
-
-  }
-  
-};
-
-// Knight
-
-ONLINGA.Units.Knight = function() {};
-
-ONLINGA.Units.Knight.prototype = new ONLINGA.Units.Unit();
-
-ONLINGA.Units.Knight.prototype.constructor = ONLINGA.Units.Knight;
-
-ONLINGA.Units.Knight.prototype.type = "knight";
-
-ONLINGA.Units.Knight.prototype.attack = 4;
-
-ONLINGA.Units.Knight.prototype.defense = 4;
-
-ONLINGA.Units.Knight.prototype.damage = 2;
-
-ONLINGA.Units.Knight.prototype.maxHealth = 4;
-
-ONLINGA.Units.Knight.prototype.currentHealth = 4;
-
-// Rider
-
-ONLINGA.Units.Rider = function() {};
-
-ONLINGA.Units.Rider.prototype = new ONLINGA.Units.Unit();
-
-ONLINGA.Units.Rider.prototype.constructor = ONLINGA.Units.Rider;
-
-ONLINGA.Units.Rider.prototype.type = "rider";
-
-ONLINGA.Units.Rider.prototype.attack = 6;
-
-ONLINGA.Units.Rider.prototype.defense = 4;
-
-ONLINGA.Units.Rider.prototype.damage = 3;
-
-ONLINGA.Units.Rider.prototype.maxHealth = 6;
-
-ONLINGA.Units.Rider.prototype.currentHealth = 6;
-
-ONLINGA.Units.Rider.prototype.remainingMoves = 3;
-
-ONLINGA.Units.Rider.prototype.maxMoves = 3;
-
-//Archer
-
-ONLINGA.Units.Archer = function() {};
-
-ONLINGA.Units.Archer.prototype = new ONLINGA.Units.Unit();
-
-ONLINGA.Units.Archer.prototype.constructor = ONLINGA.Units.Archer;
-
-ONLINGA.Units.Archer.prototype.type = "archer";
-
-ONLINGA.Units.Archer.prototype.attack = 4;
-
-ONLINGA.Units.Archer.prototype.defense = 2;
-
-ONLINGA.Units.Archer.prototype.damage = 2;
-
-ONLINGA.Units.Archer.prototype.maxHealth = 2;
-
-ONLINGA.Units.Archer.prototype.currentHealth = 2;
-
-ONLINGA.Units.Archer.prototype.remainingMoves = 2;
-
-ONLINGA.Units.Archer.prototype.maxMoves = 2;
-
-ONLINGA.Units.Archer.prototype.attackRange = 1;
-
-ONLINGA.Units.Archer.prototype.attackPercentageForRange = [100, 75];
-
-
-/*ONLINGA.AbstractAssault = function() {
-
-}
-
-// At distant assaults, the attacker can not be hurt (is that really true? archer against archer)
-
-ONLINGA.DistanceAssault = function(attacker, defender) {
-
-}*/
-
-ONLINGA.Units.CombatManager = {
-
-  combatTurns: 5,
-
-  processCloseAttack: function(attackingArmy, defendingArmy) {
-
-    var totalAttackPoints = attackingArmy.units.length * attackingArmy.units[0].getAttack(),
-        totalDefensePoints = defendingArmy.units.length * defendingArmy.units[0].getDefense(), //add field defense and position deduction
-        totalCombatPoints = totalAttackPoints + totalDefensePoints,
-        randomResult, i, damagePoints;
-
-    for (i = 0; i < this.combatTurns; i += 1) {
-
-      randomResult = Math.ceil((Math.random() * totalCombatPoints));
-
-      if (randomResult <= totalAttackPoints) {
-
-        // attacker wins round.
-
-        damagePoints = attackingArmy.units[0].getDamage();
-
-        this.handleCombatTurnLooser(defendingArmy, damagePoints);
-
-      } else {
-
-        // defender wins round.
-
-        damagePoints = defendingArmy.units[0].getDamage();
-
-        this.handleCombatTurnLooser(attackingArmy, damagePoints);
-
-      }
-
-      if (attackingArmy.units.length === 0 || defendingArmy.units.length === 0) {
-
-        // One army is destroyed, no need to fight any further.
-
-        return;
-
-      }
-
-    }
-
-  },
-  
-  handleCombatTurnLooser: function(loosers, damagePoints) {
-
-    var looser = loosers.units[loosers.units.length-1]; // get the last unit from units array
-
-    looser.reduceHealth(damagePoints);
-
-    ONLINGA.gamepad.showAttackHits(damagePoints); //ToDo: function needs delay and info which army got hit.
-    
-    if (looser.isDead()) {
-
-      loosers.units.pop(); // Remove the last unit from units array
-   
-      // ToDo: Give feedback to user
-
-      if (loosers.units.length === 0) {
-
-        // all units from the army are dead
-
-        // ToDo: Remove loosers from ONLINGA.gamepad.military and give feedback to user
-
-        return;
-
-      }
-
-      // ToDo: Change looser image to image with one unit less
-
-    }      
-
-  }
-  
-};
-
-ONLINGA.Units.Factory = {
-
-  createKnights: function(amount) {
-
-    var knights = [],
-        i;
-
-    for (i = 0; i < amount; i += 1) {
-
-      knights.push(new ONLINGA.Units.Knight());
-
-    }
-
-    return knights;
-    
-  },
-
-  createRiders: function(amount) {
-
-    var riders = [],
-        i;
-
-    for (i = 0; i < amount; i += 1) {
-
-      riders.push(new ONLINGA.Units.Rider());
-
-    }
-
-    return riders;
-    
-  },
-
-  createArchers: function(amount) {
-
-    var archers = [],
-        i;
-
-    for (i = 0; i < amount; i += 1) {
-
-      archers.push(new ONLINGA.Units.Archer());
-
-    }
-
-    return archers;
-    
-  }
-  
-};
-
-ONLINGA.gamepad = (function() {
+ONLINGA.Gamepad = (function() {
 
   // private variables
 
@@ -432,6 +95,8 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
+          range: 4,
+          
           units: ONLINGA.Units.Factory.createRiders(1),
           
           orientation: 1
@@ -443,6 +108,8 @@ ONLINGA.gamepad = (function() {
           player: 2,
           
           type: 'knight',
+          
+          range: 2,
           
           units: ONLINGA.Units.Factory.createKnights(2),
           
@@ -456,6 +123,8 @@ ONLINGA.gamepad = (function() {
           
           type: 'archer',
           
+          range: 3,
+          
           units: ONLINGA.Units.Factory.createArchers(3),
           
           orientation: 1
@@ -467,6 +136,8 @@ ONLINGA.gamepad = (function() {
           player: 1,
           
           type: 'rider',
+          
+          range: 4,
           
           units: ONLINGA.Units.Factory.createRiders(2),
           
@@ -480,6 +151,8 @@ ONLINGA.gamepad = (function() {
           
           type: 'knight',
           
+          range: 2,
+          
           units: ONLINGA.Units.Factory.createKnights(5),
           
           orientation: 1
@@ -492,6 +165,8 @@ ONLINGA.gamepad = (function() {
           
           type: 'rider',
           
+          range: 4,
+          
           units: ONLINGA.Units.Factory.createRiders(3),
 
           orientation: 1
@@ -503,6 +178,8 @@ ONLINGA.gamepad = (function() {
           player: 1,
           
           type: 'knight',
+          
+          range: 2,
           
           units: ONLINGA.Units.Factory.createKnights(5),
           
@@ -541,9 +218,23 @@ ONLINGA.gamepad = (function() {
       
       // some initial vars
       
-      ONLINGA.gamepad.range = false;
+      ONLINGA.Gamepad.range = false;
       
-      ONLINGA.gamepad.loadImages();
+      ONLINGA.Gamepad.createMilitaryIndex();
+      
+      ONLINGA.Gamepad.loadImages();
+    
+    },
+    
+    createMilitaryIndex: function() {
+    
+      var i;
+      
+      for (i = 0; i < military.length; i += 1) {
+      
+        military[i].index = i;
+      
+      }
     
     },
     
@@ -599,7 +290,7 @@ ONLINGA.gamepad = (function() {
         'img/player-2/rider-6.png'
       ];
       
-      ONLINGA.gamepad.loadImagesRecursive(imageStack, imageStack.length);
+      ONLINGA.Gamepad.loadImagesRecursive(imageStack, imageStack.length);
     
     },
     
@@ -631,15 +322,15 @@ ONLINGA.gamepad = (function() {
         
           // next iteration with remainding stack
         
-          ONLINGA.gamepad.loadImagesRecursive(imageStack, numberAllImages);
+          ONLINGA.Gamepad.loadImagesRecursive(imageStack, numberAllImages);
         
         };
       
       } else {
       
-        ONLINGA.gamepad.renderSurface();
+        ONLINGA.Gamepad.renderSurface();
                             
-        ONLINGA.gamepad.initEvents();
+        ONLINGA.Gamepad.initEvents();
 
         return true;
         
@@ -657,13 +348,13 @@ ONLINGA.gamepad = (function() {
     
       // for performance reasons grass and stones were rendered as canvas
 
-      ONLINGA.gamepad.renderBackground();
+      ONLINGA.Gamepad.renderBackground();
     
-      ONLINGA.gamepad.renderMilitary();
+      ONLINGA.Gamepad.renderMilitary();
 
       // trees and hills are rendered as dom nodes
       
-      ONLINGA.gamepad.renderObjects();
+      ONLINGA.Gamepad.renderObjects();
 
     },
     
@@ -671,7 +362,7 @@ ONLINGA.gamepad = (function() {
     
       $('#wrapper').click(function(e) {
         
-        ONLINGA.gamepad.processClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+        ONLINGA.Gamepad.processClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
         
       });
     
@@ -694,7 +385,7 @@ ONLINGA.gamepad = (function() {
               y > i * 72 + offset &&
               y < i * 72 + offset + 73) {
             
-            ONLINGA.gamepad.processClickAtTile(j, i);
+            ONLINGA.Gamepad.processClickAtTile(j, i);
             
             break;
             
@@ -714,15 +405,15 @@ ONLINGA.gamepad = (function() {
     
       // check the mode of selection (selected / not selected)
       
-      if (ONLINGA.gamepad.validTargets) {
+      if (ONLINGA.Gamepad.validTargets) {
     
         // yes, currently something is selected
     
-        if (ONLINGA.gamepad.selectedMilitary && ONLINGA.gamepad.selectedMilitary.position.x === x && ONLINGA.gamepad.selectedMilitary.position.y === y) {
+        if (ONLINGA.Gamepad.selectedMilitary && ONLINGA.Gamepad.selectedMilitary.position.x === x && ONLINGA.Gamepad.selectedMilitary.position.y === y) {
       
           // if the active military group is clicked, undo selection completely
       
-          ONLINGA.gamepad.deselectAll();
+          ONLINGA.Gamepad.deselectAll();
           
         } else {
 
@@ -734,15 +425,15 @@ ONLINGA.gamepad = (function() {
         
           validTarget = false;
         
-          for (i = 0; i < ONLINGA.gamepad.validTargets.length; i += 1) {
+          for (i = 0; i < ONLINGA.Gamepad.validTargets.length; i += 1) {
           
             // at the beginning of a new range validTargets[i] is undefined
           
-            if (ONLINGA.gamepad.validTargets[i]) {
+            if (ONLINGA.Gamepad.validTargets[i]) {
           
-              for (j = 0; j < ONLINGA.gamepad.validTargets[i].length; j += 1) {
+              for (j = 0; j < ONLINGA.Gamepad.validTargets[i].length; j += 1) {
               
-                if (ONLINGA.gamepad.validTargets[i][j].x === x && ONLINGA.gamepad.validTargets[i][j].y === y) {
+                if (ONLINGA.Gamepad.validTargets[i][j].x === x && ONLINGA.Gamepad.validTargets[i][j].y === y) {
                 
                   validClick = true;
                 
@@ -750,9 +441,9 @@ ONLINGA.gamepad = (function() {
                 
                   if (i === 1) {
                   
-                    validTarget = ONLINGA.gamepad.validTargets[i][j];
+                    validTarget = ONLINGA.Gamepad.validTargets[i][j];
                     
-                    ONLINGA.gamepad.range = ONLINGA.gamepad.validTargets.length - i - 1;
+                    ONLINGA.Gamepad.range = ONLINGA.Gamepad.validTargets.length - i - 1;
                     
                   }
                   
@@ -772,21 +463,21 @@ ONLINGA.gamepad = (function() {
             
             // check for attacking enemy
             
-            possibleEnemy = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
+            possibleEnemy = ONLINGA.Gamepad.getMilitaryAtPosition(x, y);
             
-            surfaceData = ONLINGA.gamepad.getSurfaceDataAtPosition(x, y);
+            surfaceData = ONLINGA.Gamepad.getSurfaceDataAtPosition(x, y);
             
             if (possibleEnemy && possibleEnemy.player === 2) {
             
               // attack     
 
-              ONLINGA.Units.CombatManager.processCloseAttack(ONLINGA.gamepad.selectedMilitary, possibleEnemy);
+              ONLINGA.Units.CombatManager.processCloseAttack(ONLINGA.Gamepad.selectedMilitary, possibleEnemy);
             
             } else {
             
               // deal with surface data later
               
-              ONLINGA.gamepad.moveMilitaryToPosition(x, y);
+              ONLINGA.Gamepad.moveMilitaryToPosition(x, y);
             
             }
       
@@ -796,7 +487,7 @@ ONLINGA.gamepad = (function() {
             
               // no valid target/click (click outside of range)
             
-              ONLINGA.gamepad.deselectAll();
+              ONLINGA.Gamepad.deselectAll();
               
             }
           
@@ -810,25 +501,25 @@ ONLINGA.gamepad = (function() {
     
         // check if there is own military at clicked tile
         
-        ONLINGA.gamepad.selectedMilitary = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
+        ONLINGA.Gamepad.selectedMilitary = ONLINGA.Gamepad.getMilitaryAtPosition(x, y);
         
-        if (ONLINGA.gamepad.selectedMilitary && ONLINGA.gamepad.selectedMilitary.player === 1) {
+        if (ONLINGA.Gamepad.selectedMilitary && ONLINGA.Gamepad.selectedMilitary.player === 1) {
       
           // yes, there is own military
           
           // highlight military and valid targets
       
-          if (!ONLINGA.gamepad.militaryHighlightElement) {
+          if (!ONLINGA.Gamepad.militaryHighlightElement) {
         
-            ONLINGA.gamepad.militaryHighlightElement = $('.highlight').first().clone().appendTo('#gamepad');
+            ONLINGA.Gamepad.militaryHighlightElement = $('.highlight').first().clone().appendTo('#gamepad');
 
-            ONLINGA.gamepad.militaryHighlightElement.addClass('pulse');
+            ONLINGA.Gamepad.militaryHighlightElement.addClass('pulse');
             
           }
           
           offsetY = x % 2 === 0 ? 36 : 0;
           
-          $(ONLINGA.gamepad.militaryHighlightElement).css({
+          $(ONLINGA.Gamepad.militaryHighlightElement).css({
           
             left: x * 54 + 1,
             
@@ -838,7 +529,7 @@ ONLINGA.gamepad = (function() {
             
           });
           
-          ONLINGA.gamepad.highlightTargetHexaeders(ONLINGA.gamepad.range);
+          ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
           
         }
             
@@ -850,11 +541,11 @@ ONLINGA.gamepad = (function() {
     
       // deselect targets
       
-      ONLINGA.gamepad.removeExistingTargetHighlightings();
+      ONLINGA.Gamepad.removeExistingTargetHighlightings();
     
       // deselect military
       
-      ONLINGA.gamepad.deselectMilitary();
+      ONLINGA.Gamepad.deselectMilitary();
     
     },
     
@@ -898,9 +589,9 @@ ONLINGA.gamepad = (function() {
           militaryBackground, militaryElement,
           regExpPattern;
       
-      xOrientation = x - ONLINGA.gamepad.selectedMilitary.position.x;
+      xOrientation = x - ONLINGA.Gamepad.selectedMilitary.position.x;
       
-      yOrientation = y - ONLINGA.gamepad.selectedMilitary.position.y - (x % 2);
+      yOrientation = y - ONLINGA.Gamepad.selectedMilitary.position.y - (x % 2);
       
       // there are 6 orientations possible
       
@@ -950,13 +641,13 @@ ONLINGA.gamepad = (function() {
       
         // change military character backgrounds
         
-        militaryElement = $('#military-tile-' + ONLINGA.gamepad.selectedMilitary.index);
+        militaryElement = $('#military-tile-' + ONLINGA.Gamepad.selectedMilitary.index);
         
         militaryBackground = militaryElement.css('background-image');
 
-        regExpPattern = new RegExp(ONLINGA.gamepad.selectedMilitary.type + '-' + ONLINGA.gamepad.selectedMilitary.orientation, 'gi');
+        regExpPattern = new RegExp(ONLINGA.Gamepad.selectedMilitary.type + '-' + ONLINGA.Gamepad.selectedMilitary.orientation, 'gi');
         
-        militaryBackground = militaryBackground.replace(regExpPattern, ONLINGA.gamepad.selectedMilitary.type + '-' + orientation);
+        militaryBackground = militaryBackground.replace(regExpPattern, ONLINGA.Gamepad.selectedMilitary.type + '-' + orientation);
       
         militaryElement.css({
           
@@ -966,7 +657,7 @@ ONLINGA.gamepad = (function() {
       
         // set new orientation after that
         
-        ONLINGA.gamepad.selectedMilitary.orientation = orientation;
+        ONLINGA.Gamepad.selectedMilitary.orientation = orientation;
         
       }
       
@@ -976,19 +667,19 @@ ONLINGA.gamepad = (function() {
     
       var militaryElement, offsetY;
     
-      ONLINGA.gamepad.selectedMilitary.position.x = x;
+      ONLINGA.Gamepad.selectedMilitary.position.x = x;
       
-      ONLINGA.gamepad.selectedMilitary.position.y = y;
+      ONLINGA.Gamepad.selectedMilitary.position.y = y;
       
-      militaryElement = $('#military-tile-' + ONLINGA.gamepad.selectedMilitary.index);
+      militaryElement = $('#military-tile-' + ONLINGA.Gamepad.selectedMilitary.index);
     
-      offsetY = ONLINGA.gamepad.selectedMilitary.position.x % 2 === 0 ? 36 : 0;
+      offsetY = ONLINGA.Gamepad.selectedMilitary.position.x % 2 === 0 ? 36 : 0;
 
       militaryElement.css({
       
-        left: ONLINGA.gamepad.selectedMilitary.position.x * 54,
+        left: ONLINGA.Gamepad.selectedMilitary.position.x * 54,
         
-        top: ONLINGA.gamepad.selectedMilitary.position.y * 72 + offsetY,
+        top: ONLINGA.Gamepad.selectedMilitary.position.y * 72 + offsetY,
         
         display: 'block'
         
@@ -1000,9 +691,9 @@ ONLINGA.gamepad = (function() {
     
       var treeElement;
     
-      if (ONLINGA.gamepad.selectedMilitary) {
+      if (ONLINGA.Gamepad.selectedMilitary) {
       
-        treeElement = ONLINGA.gamepad.getTreeElementAtPosition(ONLINGA.gamepad.selectedMilitary.position.x, ONLINGA.gamepad.selectedMilitary.position.y);
+        treeElement = ONLINGA.Gamepad.getTreeElementAtPosition(ONLINGA.Gamepad.selectedMilitary.position.x, ONLINGA.Gamepad.selectedMilitary.position.y);
         
         if (treeElement) {
         
@@ -1010,7 +701,7 @@ ONLINGA.gamepad = (function() {
         
         }
       
-        treeElement = ONLINGA.gamepad.getTreeElementAtPosition(x, y);
+        treeElement = ONLINGA.Gamepad.getTreeElementAtPosition(x, y);
         
         if (treeElement) {
         
@@ -1018,25 +709,25 @@ ONLINGA.gamepad = (function() {
         
           // if this is the case, show a hint "defence bonus"
           
-          ONLINGA.gamepad.showHintAtPosition('DEFENCE BONUS', x, y);
+          ONLINGA.Gamepad.showHintAtPosition('DEFENCE BONUS', x, y);
           
         }
       
-        ONLINGA.gamepad.setMilitaryOrientation(x, y);
+        ONLINGA.Gamepad.setMilitaryOrientation(x, y);
       
-        ONLINGA.gamepad.setMilitaryPosition(x, y);
+        ONLINGA.Gamepad.setMilitaryPosition(x, y);
       
         // still moves left?
         
-        if (ONLINGA.gamepad.range !== 0) {
+        if (ONLINGA.Gamepad.range !== 0) {
         
-          ONLINGA.gamepad.highlightTargetHexaeders(ONLINGA.gamepad.range);
+          ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
         
         } else {
         
-          ONLINGA.gamepad.range = false;
+          ONLINGA.Gamepad.range = false;
         
-          ONLINGA.gamepad.deselectAll();
+          ONLINGA.Gamepad.deselectAll();
           
           // end of moves reached
           
@@ -1082,41 +773,29 @@ ONLINGA.gamepad = (function() {
     
         // calculate range by type of military
         
-        if (ONLINGA.gamepad.selectedMilitary) {
+        if (ONLINGA.Gamepad.selectedMilitary) {
         
-          if (ONLINGA.gamepad.selectedMilitary.type === 'knight') {
+          range = ONLINGA.Gamepad.selectedMilitary.range;
           
-            range = 1;
-          
-          } else if (ONLINGA.gamepad.selectedMilitary.type === 'archer') {
-        
-            range = 2;
-          
-          } else if (ONLINGA.gamepad.selectedMilitary.type === 'rider') {
-          
-            range = 3;
-          
-          }
-          
-          // remove existing highlightings
-          
-          ONLINGA.gamepad.removeExistingTargetHighlightings();
-          
-          // highlight targets in range
-          
-          ONLINGA.gamepad.highlightTargetsInRange(range);
-         
         }
+        
+        // remove existing highlightings
+        
+        ONLINGA.Gamepad.removeExistingTargetHighlightings();
+        
+        // highlight targets in range
+        
+        ONLINGA.Gamepad.highlightTargetsInRange(range);
         
       } else {
       
         // remove existing highlightings
         
-        ONLINGA.gamepad.removeExistingTargetHighlightings();
+        ONLINGA.Gamepad.removeExistingTargetHighlightings();
         
         // highlight targets in range
         
-        ONLINGA.gamepad.highlightTargetsInRange(range);
+        ONLINGA.Gamepad.highlightTargetsInRange(range);
        
       }
     
@@ -1134,15 +813,15 @@ ONLINGA.gamepad = (function() {
       
       }
       
-      delete ONLINGA.gamepad.validTargets;
+      delete ONLINGA.Gamepad.validTargets;
     
     },
     
     deselectMilitary: function() {
 
-      if (ONLINGA.gamepad.militaryHighlightElement) {
+      if (ONLINGA.Gamepad.militaryHighlightElement) {
     
-        $(ONLINGA.gamepad.militaryHighlightElement).css({
+        $(ONLINGA.Gamepad.militaryHighlightElement).css({
           
           display: 'none'
           
@@ -1150,7 +829,7 @@ ONLINGA.gamepad = (function() {
         
       }
       
-      ONLINGA.gamepad.selectedMilitary = false;
+      ONLINGA.Gamepad.selectedMilitary = false;
       
     },
     
@@ -1158,25 +837,25 @@ ONLINGA.gamepad = (function() {
     
       var i, x, y;
     
-      ONLINGA.gamepad.validTargets[range] = [];
+      ONLINGA.Gamepad.validTargets[range] = [];
       
-      for (i = 0; i < ONLINGA.gamepad.validTargets[range - 1].length; i += 1) {
+      for (i = 0; i < ONLINGA.Gamepad.validTargets[range - 1].length; i += 1) {
     
-        x = ONLINGA.gamepad.validTargets[range - 1][i].x;
+        x = ONLINGA.Gamepad.validTargets[range - 1][i].x;
     
-        y = ONLINGA.gamepad.validTargets[range - 1][i].y;
+        y = ONLINGA.Gamepad.validTargets[range - 1][i].y;
     
-        ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y - x % 2, range);
+        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, range);
       
-        ONLINGA.gamepad.highlightTargetHexaeder(x, y - 1, range);
+        ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, range);
       
-        ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y - x % 2, range);
+        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, range);
       
-        ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), range);
+        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), range);
       
-        ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), range);
+        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), range);
       
-        ONLINGA.gamepad.highlightTargetHexaeder(x, y + 1, range);
+        ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, range);
     
       }
     
@@ -1186,33 +865,33 @@ ONLINGA.gamepad = (function() {
     
       var x, y, i;
       
-      x = ONLINGA.gamepad.selectedMilitary.position.x;
+      x = ONLINGA.Gamepad.selectedMilitary.position.x;
     
-      y = ONLINGA.gamepad.selectedMilitary.position.y;
+      y = ONLINGA.Gamepad.selectedMilitary.position.y;
     
       // highlight range 1 in every case
       
-      ONLINGA.gamepad.validTargets = [];
+      ONLINGA.Gamepad.validTargets = [];
       
-      ONLINGA.gamepad.validTargets[1] = [];
+      ONLINGA.Gamepad.validTargets[1] = [];
       
-      ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
+      ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x, y - 1, 1);
+      ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
+      ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
+      ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
+      ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
     
-      ONLINGA.gamepad.highlightTargetHexaeder(x, y + 1, 1);
+      ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 1);
     
       if (range > 1) {
     
         for (i = 2; i <= range; i += 1) {
         
-          ONLINGA.gamepad.highlightTargetsInRangeSub(i);
+          ONLINGA.Gamepad.highlightTargetsInRangeSub(i);
         
         }
         
@@ -1232,11 +911,11 @@ ONLINGA.gamepad = (function() {
         
           // at the beginning of a new range validTargets[i] is undefined
         
-          if (ONLINGA.gamepad.validTargets[i]) {
+          if (ONLINGA.Gamepad.validTargets[i]) {
         
-            for (j = 0; j < ONLINGA.gamepad.validTargets[i].length; j += 1) {
+            for (j = 0; j < ONLINGA.Gamepad.validTargets[i].length; j += 1) {
             
-              if (ONLINGA.gamepad.validTargets[i][j].x === x && ONLINGA.gamepad.validTargets[i][j].y === y) {
+              if (ONLINGA.Gamepad.validTargets[i][j].x === x && ONLINGA.Gamepad.validTargets[i][j].y === y) {
               
                 return true;
               
@@ -1269,9 +948,9 @@ ONLINGA.gamepad = (function() {
         // check if there is an own military target
         // if not, highlight the hexaeder
 
-        if (!ONLINGA.gamepad.isAlreadyValidTarget(x, y, range)) {
+        if (!ONLINGA.Gamepad.isAlreadyValidTarget(x, y, range)) {
         
-          militaryTarget = ONLINGA.gamepad.getMilitaryAtPosition(x, y);
+          militaryTarget = ONLINGA.Gamepad.getMilitaryAtPosition(x, y);
           
           if (!militaryTarget || militaryTarget.player === 2) {
           
@@ -1287,7 +966,7 @@ ONLINGA.gamepad = (function() {
               
             });
             
-            ONLINGA.gamepad.validTargets[range].push({
+            ONLINGA.Gamepad.validTargets[range].push({
             
               x: x,
               
@@ -1580,7 +1259,7 @@ ONLINGA.gamepad = (function() {
             
             // prevent trees from beeing draged while moving the gamepad
             
-            treeElement.mousedown(ONLINGA.gamepad.preventEventDefault);
+            treeElement.mousedown(ONLINGA.Gamepad.preventEventDefault);
 
             treeElement.attr('id', 'tree-tile-' + i + '-' + j).css({
             
@@ -1620,7 +1299,7 @@ ONLINGA.gamepad = (function() {
 
             // prevent hills from beeing draged while moving the gamepad
             
-            hillElement.mousedown(ONLINGA.gamepad.preventEventDefault);
+            hillElement.mousedown(ONLINGA.Gamepad.preventEventDefault);
 
             hillElement.attr('id', 'hill-tile-' + i + '-' + j).css({
             
@@ -1642,7 +1321,7 @@ ONLINGA.gamepad = (function() {
     
     renderMilitary: function() {
     
-      var i, militaryElement, offsetY;
+      var i;
     
       for (i = 0; i < military.length; i += 1) {
     
@@ -1650,33 +1329,48 @@ ONLINGA.gamepad = (function() {
         
         military[i].index = i;
     
-        militaryElement = $('.military').first().clone().appendTo('#gamepad');
-        
-        militaryElement.addClass('military');
-        militaryElement.addClass(military[i].type + '-' + military[i].player + '-' + military[i].units.length);
-        
-        offsetY = military[i].position.x % 2 === 0 ? 36 : 0;
-
-        militaryPositions[military[i].position.y][military[i].position.x] = 1;
-        
-        // prevent military element from beeing draged while moving the gamepad
-        
-        militaryElement.mousedown(ONLINGA.gamepad.preventEventDefault);
-
-        militaryElement.attr('id', 'military-tile-' + i).css({
-        
-          left: military[i].position.x * 54,
-          
-          top: military[i].position.y * 72 + offsetY,
-          
-          display: 'block'
-          
-        });
+        ONLINGA.Gamepad.renderSingleArmy(i);
         
       }
     
     },
 
+    renderSingleArmy: function(index) {
+    
+      var militaryElement, offsetY;
+    
+      // remove existing dom elements
+      
+      $('#military-tile-' + index).remove();
+      
+      // create new dom elements
+    
+      militaryElement = $('.military').first().clone().appendTo('#gamepad');
+      
+      militaryElement.addClass('military');
+      
+      militaryElement.addClass(military[index].type + '-' + military[index].player + '-' + military[index].units.length);
+      
+      offsetY = military[index].position.x % 2 === 0 ? 36 : 0;
+
+      militaryPositions[military[index].position.y][military[index].position.x] = 1;
+      
+      // prevent military element from beeing draged while moving the gamepad
+      
+      militaryElement.mousedown(ONLINGA.Gamepad.preventEventDefault);
+
+      militaryElement.attr('id', 'military-tile-' + index).css({
+      
+        left: military[index].position.x * 54,
+        
+        top: military[index].position.y * 72 + offsetY,
+        
+        display: 'block'
+        
+      });
+
+    },
+    
     preventEventDefault: function(e) {
           
       e.preventDefault();
@@ -1686,3 +1380,5 @@ ONLINGA.gamepad = (function() {
   };
 
 }());
+
+ONLINGA.Gamepad.init();
