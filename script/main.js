@@ -20,6 +20,10 @@ ONLINGA.Main = (function() {
       
       ONLINGA.Main.updateWrapper();
     
+      ONLINGA.Main.loadImages();
+    
+      ONLINGA.Main.createAudioTags();
+    
     },
 
     updateWrapper: function() {
@@ -82,6 +86,134 @@ ONLINGA.Main = (function() {
       
       ONLINGA.Main.wrapperOffset = $('#wrapper').offset();
 
+    },
+    
+    loadImages: function() {
+    
+      var imageStack = [
+        'img/tiles/lake-big.png',
+        'img/tiles/lake-small.png',
+        'img/tiles/meadow-1.gif',
+        'img/tiles/meadow-2.gif',
+        'img/tiles/meadow-3.gif',
+        'img/tiles/fallow-big-1.png',
+        'img/tiles/fallow-big-2.png',
+        'img/tiles/fallow-medium-1.png',
+        'img/tiles/hill-1.png',
+        'img/tiles/hill-2.png',
+        'img/tiles/hexaeder.png',
+        'img/player-1/knight-1.png',
+        'img/player-1/knight-2.png',
+        'img/player-1/knight-3.png',
+        'img/player-1/knight-4.png',
+        'img/player-1/knight-5.png',
+        'img/player-1/knight-6.png',
+        'img/player-2/knight-1.png',
+        'img/player-2/knight-2.png',
+        'img/player-2/knight-3.png',
+        'img/player-2/knight-4.png',
+        'img/player-2/knight-5.png',
+        'img/player-2/knight-6.png',
+        'img/player-1/archer-1.png',
+        'img/player-1/archer-2.png',
+        'img/player-1/archer-3.png',
+        'img/player-1/archer-4.png',
+        'img/player-1/archer-5.png',
+        'img/player-1/archer-6.png',
+        'img/player-2/archer-1.png',
+        'img/player-2/archer-2.png',
+        'img/player-2/archer-3.png',
+        'img/player-2/archer-4.png',
+        'img/player-2/archer-5.png',
+        'img/player-2/archer-6.png',
+        'img/player-1/rider-1.png',
+        'img/player-1/rider-2.png',
+        'img/player-1/rider-3.png',
+        'img/player-1/rider-4.png',
+        'img/player-1/rider-5.png',
+        'img/player-1/rider-6.png',
+        'img/player-2/rider-1.png',
+        'img/player-2/rider-2.png',
+        'img/player-2/rider-3.png',
+        'img/player-2/rider-4.png',
+        'img/player-2/rider-5.png',
+        'img/player-2/rider-6.png'
+      ];
+      
+      ONLINGA.Main.loadImagesRecursive(imageStack, imageStack.length);
+    
+    },
+    
+    loadImagesRecursive: function(imageStack, numberAllImages) {
+    
+      var image = new Image();
+      
+      if (imageStack.length) {
+      
+        // load first image from stack
+      
+        image.src = imageStack[0];
+        
+        image.onload = function() {
+        
+          // console.log(image.src.substring(image.src.lastIndexOf('/') + 1, image.src.lastIndexOf('.')));
+        
+          // remove loaded image from stack
+        
+          imageStack.shift();
+        
+          // update progress bar
+          
+          $('#preloader .progress .bar').css({
+          
+            width: (500 / numberAllImages) * (numberAllImages - imageStack.length + 1)
+            
+          });
+        
+          // next iteration with remainding stack
+        
+          ONLINGA.Main.loadImagesRecursive(imageStack, numberAllImages);
+        
+        };
+      
+      } else {
+      
+        ONLINGA.Gamepad.renderSurface();
+                            
+        ONLINGA.Gamepad.initEvents();
+
+        return true;
+        
+      }
+    
+    },
+    
+    createAudioTags: function() {
+    
+      var audioStack = [
+        'sounds/swoosh.ogg'
+      ], i;
+      
+      for (i = 0; i < audioStack.length; i += 1) {
+      
+        $('body').append($('<audio>')
+                           .attr({
+                             preload: 'auto',
+                             id: 'audio-' + audioStack[i].substring(audioStack[i].lastIndexOf('/') + 1, audioStack[i].lastIndexOf('.'))
+                           })
+                           /*.append($('<source>')
+                             .attr({
+                               src: audioStack[i] + '.mp3',
+                               type: 'audio/mpeg; codecs="mp3"',
+                             }))*/
+                           .append($('<source>')
+                             .attr({
+                               src: audioStack[i],
+                               type: 'audio/ogg; codecs="vorbis"',
+                             })));
+                             
+      }
+    
     }
     
   }

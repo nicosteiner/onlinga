@@ -222,8 +222,6 @@ ONLINGA.Gamepad = (function() {
       
       ONLINGA.Gamepad.createMilitaryIndex();
       
-      ONLINGA.Gamepad.loadImages();
-    
     },
     
     createMilitaryIndex: function() {
@@ -234,106 +232,6 @@ ONLINGA.Gamepad = (function() {
       
         military[i].index = i;
       
-      }
-    
-    },
-    
-    loadImages: function() {
-    
-      var imageStack = [
-        'img/tiles/lake-big.png',
-        'img/tiles/lake-small.png',
-        'img/tiles/meadow-1.gif',
-        'img/tiles/meadow-2.gif',
-        'img/tiles/meadow-3.gif',
-        'img/tiles/fallow-big-1.png',
-        'img/tiles/fallow-big-2.png',
-        'img/tiles/fallow-medium-1.png',
-        'img/tiles/hill-1.png',
-        'img/tiles/hill-2.png',
-        'img/tiles/hexaeder.png',
-        'img/player-1/knight-1.png',
-        'img/player-1/knight-2.png',
-        'img/player-1/knight-3.png',
-        'img/player-1/knight-4.png',
-        'img/player-1/knight-5.png',
-        'img/player-1/knight-6.png',
-        'img/player-2/knight-1.png',
-        'img/player-2/knight-2.png',
-        'img/player-2/knight-3.png',
-        'img/player-2/knight-4.png',
-        'img/player-2/knight-5.png',
-        'img/player-2/knight-6.png',
-        'img/player-1/archer-1.png',
-        'img/player-1/archer-2.png',
-        'img/player-1/archer-3.png',
-        'img/player-1/archer-4.png',
-        'img/player-1/archer-5.png',
-        'img/player-1/archer-6.png',
-        'img/player-2/archer-1.png',
-        'img/player-2/archer-2.png',
-        'img/player-2/archer-3.png',
-        'img/player-2/archer-4.png',
-        'img/player-2/archer-5.png',
-        'img/player-2/archer-6.png',
-        'img/player-1/rider-1.png',
-        'img/player-1/rider-2.png',
-        'img/player-1/rider-3.png',
-        'img/player-1/rider-4.png',
-        'img/player-1/rider-5.png',
-        'img/player-1/rider-6.png',
-        'img/player-2/rider-1.png',
-        'img/player-2/rider-2.png',
-        'img/player-2/rider-3.png',
-        'img/player-2/rider-4.png',
-        'img/player-2/rider-5.png',
-        'img/player-2/rider-6.png'
-      ];
-      
-      ONLINGA.Gamepad.loadImagesRecursive(imageStack, imageStack.length);
-    
-    },
-    
-    loadImagesRecursive: function(imageStack, numberAllImages) {
-    
-      var image = new Image();
-      
-      if (imageStack.length) {
-      
-        // load first image from stack
-      
-        image.src = imageStack[0];
-        
-        image.onload = function() {
-        
-          // console.log(image.src.substring(image.src.lastIndexOf('/') + 1, image.src.lastIndexOf('.')));
-        
-          // remove loaded image from stack
-        
-          imageStack.shift();
-        
-          // update progress bar
-          
-          $('#preloader .progress .bar').css({
-          
-            width: (500 / numberAllImages) * (numberAllImages - imageStack.length + 1)
-            
-          });
-        
-          // next iteration with remainding stack
-        
-          ONLINGA.Gamepad.loadImagesRecursive(imageStack, numberAllImages);
-        
-        };
-      
-      } else {
-      
-        ONLINGA.Gamepad.renderSurface();
-                            
-        ONLINGA.Gamepad.initEvents();
-
-        return true;
-        
       }
     
     },
@@ -356,6 +254,10 @@ ONLINGA.Gamepad = (function() {
       
       ONLINGA.Gamepad.renderObjects();
 
+      // start the game with displaying a title
+      
+      ONLINGA.Gamepad.showGameTitle('<h1>Player 1</h1>');
+      
     },
     
     initEvents: function() {
@@ -764,7 +666,51 @@ ONLINGA.Gamepad = (function() {
                 .animate( { marginTop: '-=6px', opacity: 0 }, 500, function() {
                 $('#hint').css({ marginTop: '0', display: 'none' });
       });
-          
+      
+    },
+    
+    playAudio: function(audio) {
+    
+      var audioElement;
+      
+      audioElement = document.getElementById('audio-' + audio);
+    
+      if (audioElement) {
+      
+        audioElement.play();
+      
+      }
+    
+    },
+    
+    showGameTitle: function(titleMarkup) {
+    
+      $('#title').html(titleMarkup);
+      
+      $('#title').removeClass('hidden');
+      
+      ONLINGA.Gamepad.playAudio('swoosh');
+    
+      $('#title').animate({
+                   top: '+=300px',
+                   fontSize: '-=150px'
+                 }, 250)
+                 .delay(500)
+                 .animate({
+                   top: '-=25px',
+                   letterSpacing: '+=80px',
+                   fontSize: '+=50px',
+                   opacity: 0
+                 }, 250, function() {
+                     $('#title').css({
+                       top: '-100px',
+                       fontSize: '230px',
+                       letterSpacing: '-=80px',
+                       opacity: 1
+                     })
+                     .addClass('hidden');
+                 });
+      
     },
     
     highlightTargetHexaeders: function(range) {

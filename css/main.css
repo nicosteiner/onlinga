@@ -202,6 +202,22 @@ body {
   display: none;
 }
 
+#gamepad #title {
+  color: #fff;
+  font-family: Grey Magus, sans serif;
+  font-size: 230px;
+  z-index: 30;
+  position: absolute;
+  width: 100%;
+  top: -100px;
+  text-align: center;
+}
+
+#gamepad #title h1 {
+  text-shadow: 0 0 4px rgba(0, 0, 0, 1);
+  font-size: 100%;
+}
+
 #gamepad #hit {
   color: #fff;
   font-family: Grey Magus, sans serif;
