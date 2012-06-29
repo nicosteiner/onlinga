@@ -1283,11 +1283,13 @@ ONLINGA.Gamepad = (function() {
 
     renderSingleArmy: function(index) {
     
-      var militaryElement, offsetY;
+      var militaryElement, offsetY, i, currentHealth;
     
       // remove existing dom elements
       
       $('#military-tile-' + index).remove();
+      
+      $('#military-health-' + index).remove();
       
       // create new dom elements
     
@@ -1315,7 +1317,29 @@ ONLINGA.Gamepad = (function() {
         
       });
 
+      healthElement = $('.health').first().clone().appendTo('#gamepad');
+      
+      // for each unit add an unit helath element
+      
+      for (i = 0; i < military[index].units.length; i += 1) {
+      
+        currentHealth = 6 / (military[index].units[i].maxHealth / military[index].units[i].currentHealth);
+      
+        healthElement.attr('id', 'military-health-' + index).css({
+        
+          left: military[index].position.x * 54 + 8,
+          
+          top: military[index].position.y * 72 + offsetY + 50,
+          
+        });
+      
+        healthElement.append($('<span class="unit-health">')
+                             .css({ boxShadow: currentHealth + 'px 0 0 0 #0f0 inset' }));
+      
+      }
+      
     },
+    
     
     preventEventDefault: function(e) {
           

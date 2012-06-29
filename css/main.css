@@ -385,3 +385,28 @@ body {
   background-image: url(../img/player-2/rider-1.png), url(../img/player-2/rider-1.png), url(../img/player-2/rider-1.png);
   background-position: -5px 10px, 20px 10px, 8px -5px;
 }
+
+#gamepad .health {
+  position: absolute;
+  width: 60px;
+  height: 4px;
+  z-index: 10;
+  text-align: center;
+}
+
+#gamepad .health .unit-health {
+  display: inline-block;
+  margin-right: 1px;
+  border: 1px black solid;
+  height: 2px;
+  width: 6px;
+  box-shadow: inset 6px 0 0 0 #0f0;
+}
+
+#gamepad .health .unit-health:first-child {
+  margin-left: auto;
+}
+
+#gamepad .health .unit-health:last-child {
+  margin-right: auto;
+}
