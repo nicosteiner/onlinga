@@ -218,7 +218,7 @@ ONLINGA.Units.CombatManager = {
         totalCombatPoints = totalAttackPoints + totalDefensePoints,
         randomResult, i, damagePoints;
 
-    for (i = 0; i < this.combatTurns; i += 1) {
+    for (i = 0; i < ONLINGA.Units.CombatManager.combatTurns; i += 1) {
 
       randomResult = Math.ceil((Math.random() * totalCombatPoints));
 
@@ -228,7 +228,7 @@ ONLINGA.Units.CombatManager = {
 
         damagePoints = attackingArmy.units[0].getDamage();
 
-        this.handleCombatTurnLooser(defendingArmy, damagePoints);
+        ONLINGA.Units.CombatManager.handleCombatTurnLooser(defendingArmy, damagePoints, defendingArmy.position, ONLINGA.Units.CombatManager.handleVictory);
 
       } else {
 
@@ -236,7 +236,7 @@ ONLINGA.Units.CombatManager = {
 
         damagePoints = defendingArmy.units[0].getDamage();
 
-        this.handleCombatTurnLooser(attackingArmy, damagePoints);
+        ONLINGA.Units.CombatManager.handleCombatTurnLooser(attackingArmy, damagePoints, attackingArmy.position, ONLINGA.Units.CombatManager.handleDefeat);
 
       }
 
@@ -252,7 +252,7 @@ ONLINGA.Units.CombatManager = {
 
   },
   
-  handleCombatTurnLooser: function(loosers, damagePoints) {
+  handleCombatTurnLooser: function(loosers, damagePoints, newPosition, handleDead) {
 
     var looser = loosers.units[loosers.units.length-1]; // get the last unit from units array
 
@@ -270,13 +270,11 @@ ONLINGA.Units.CombatManager = {
 
         // all units from the army are dead
 
-        // ToDo: Remove loosers from ONLINGA.Gamepad.military and give feedback to user
+        handleDead(newPosition, loosers.index);
+      
+        // remove loosers from ONLINGA.Gamepad.military
 
-        delete ONLINGA.Gamepad.removeMilitaryByIndex(loosers.index);
-        
-        // render target hexaeders to remove red highlighting of enemy hexaeder
-        
-        ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range)
+        ONLINGA.Gamepad.removeMilitaryByIndex(loosers.index);
         
         return;
 
@@ -284,7 +282,31 @@ ONLINGA.Units.CombatManager = {
 
     }      
 
-  }
+  },
+  
+  handleDefeat: function(newPosition, index) {
+  
+    // remove highlighted hexaeders
+    
+    ONLINGA.Gamepad.removeExistingTargetHighlightings();
+  
+    // and give feedback to user
+
+    ONLINGA.Gamepad.showHintAtPosition('DEFEATED!', newPosition.x, newPosition.y);
+    
+  },
+  
+  handleVictory: function(newPosition, index) {
+  
+    // move attacking military to enemy position
+    
+    ONLINGA.Gamepad.moveMilitaryToPosition(newPosition.x, newPosition.y)
+    
+    // and give feedback to user
+
+    ONLINGA.Gamepad.showHintAtPosition('VICTORY!', newPosition.x, newPosition.y);
+    
+  },  
   
 };
 
