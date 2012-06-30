@@ -6,7 +6,6 @@ ONLINGA.Gamepad = (function() {
       surface = [],
       props = [],
       military = [],
-      militaryPositions = [],
       canvas,
       canvasContext;
 
@@ -189,24 +188,6 @@ ONLINGA.Gamepad = (function() {
         
       ];
       
-      // will be set with values afterwards
-      
-      militaryPositions = [
-      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                                      
-      ];
-      
       // specials
       // ========
       
@@ -231,6 +212,16 @@ ONLINGA.Gamepad = (function() {
       for (i = 0; i < military.length; i += 1) {
       
         military[i].index = i;
+      
+      }
+    
+    },
+    
+    removeMilitaryByIndex: function(index) {
+    
+      if (military[index]) {
+      
+        delete military[index];
       
       }
     
@@ -950,7 +941,7 @@ ONLINGA.Gamepad = (function() {
       
       for (i = 0; i < military.length; i += 1) {
       
-        if (military[i].position.x === x && military[i].position.y === y) {
+        if (military[i] && military[i].position.x === x && military[i].position.y === y) {
         
           return military[i];
         
@@ -1217,7 +1208,7 @@ ONLINGA.Gamepad = (function() {
               
             });
             
-            if (militaryPositions[i][j] !== 0) {
+            if (ONLINGA.Gamepad.getMilitaryAtPosition(i, j) !== 0) {
             
               treeElement.addClass('transparent');
             
@@ -1299,8 +1290,6 @@ ONLINGA.Gamepad = (function() {
       
       offsetY = military[index].position.x % 2 === 0 ? 36 : 0;
 
-      militaryPositions[military[index].position.y][military[index].position.x] = 1;
-      
       // prevent military element from beeing draged while moving the gamepad
       
       militaryElement.mousedown(ONLINGA.Gamepad.preventEventDefault);

@@ -272,11 +272,15 @@ ONLINGA.Units.CombatManager = {
 
         // ToDo: Remove loosers from ONLINGA.Gamepad.military and give feedback to user
 
+        delete ONLINGA.Gamepad.removeMilitaryByIndex(loosers.index);
+        
+        // render target hexaeders to remove red highlighting of enemy hexaeder
+        
+        ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range)
+        
         return;
 
       }
-
-      // ToDo: Change looser image to image with one unit less
 
     }      
 
