@@ -88,23 +88,55 @@ body {
   z-index: 1;
 }
 
-#gamepad .highlight {
+#gamepad #next-turn-button {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  padding: 5px;
+  z-index: 20;
+  background: -moz-linear-gradient(top, #ffffff 0%, #a6a6a6 100%); /* FF3.6+ */
+  border-radius: 4px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+#gamepad #next-turn-button:hover {
+  cursor: pointer;
+}
+
+@-webkit-keyframes pulse-next-turn {
+  0%   { box-shadow: 0 0 3px rgba(255, 0, 0, 0.3); }
+  50%  { box-shadow: 0 0 3px rgba(255, 0, 0, 1); }
+  100% { box-shadow: 0 0 3px rgba(255, 0, 0, 0.3); }
+}
+
+@-moz-keyframes pulse-next-turn {
+  0%   { box-shadow: 0 0 3px rgba(255, 0, 0, 0.3); }
+  50%  { box-shadow: 0 0 3px rgba(255, 0, 0, 1); }
+  100% { box-shadow: 0 0 3px rgba(255, 0, 0, 0.3); }
+}
+
+#gamepad #next-turn-button.highlight {
+  -webkit-animation: 2s pulse-next-turn infinite;
+  -moz-animation: 2s pulse-next-turn infinite;
+}
+
+#gamepad .highlight.hexaeder {
   position: absolute;
   z-index: 1;
   display: none;
 }
 
-#gamepad .highlight {
+#gamepad .highlight.hexaeder {
   width: 74px;
   height: 73px;
   background: url(../img/tiles/highlight-white.png) 0 0 no-repeat;
 }
 
-#gamepad .highlight.enemy {
+#gamepad .highlight.hexaeder.enemy {
   background-image: url(../img/tiles/highlight-red.png);
 }
 
-#gamepad .highlight.outside {
+#gamepad .highlight.hexaeder.outside {
   opacity: 0.3;
 }
 
@@ -120,7 +152,7 @@ body {
   100% { opacity: 0.5; }
 }
 
-#gamepad .highlight.pulse {
+#gamepad .highlight.hexaeder.pulse {
   -webkit-animation: 2s pulse infinite;
   -moz-animation: 2s pulse infinite;
 }

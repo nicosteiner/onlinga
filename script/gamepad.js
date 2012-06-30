@@ -201,6 +201,10 @@ ONLINGA.Gamepad = (function() {
       
       ONLINGA.Gamepad.range = false;
       
+      ONLINGA.Gamepad.movedMilitaryIndex = false;
+      
+      ONLINGA.Gamepad.activePlayer = 1;
+      
       ONLINGA.Gamepad.createMilitaryIndex();
       
     },
@@ -258,7 +262,40 @@ ONLINGA.Gamepad = (function() {
         ONLINGA.Gamepad.processClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
         
       });
+      
+      $('#next-turn-button').click(function(e) {
+      
+        e.preventDefault();
+        
+        ONLINGA.Gamepad.switchToNextTurn();
+      
+      });
     
+    },
+    
+    switchToNextTurn: function() {
+    
+      ONLINGA.Gamepad.range = false;
+      
+      ONLINGA.Gamepad.movedMilitaryIndex = false;
+          
+      $('#next-turn-button').removeClass('highlight');
+    
+      if (ONLINGA.Gamepad.activePlayer === 1) {
+      
+        ONLINGA.Gamepad.activePlayer = 2;
+        
+        ONLINGA.Gamepad.showGameTitle('<h1>Player 2</h1>');
+      
+      } else {
+      
+        ONLINGA.Gamepad.activePlayer = 1;
+      
+      
+        ONLINGA.Gamepad.showGameTitle('<h1>Player 1</h1>');
+      
+      }
+      
     },
     
     processClick: function(x, y) {
@@ -360,9 +397,9 @@ ONLINGA.Gamepad = (function() {
             
             surfaceData = ONLINGA.Gamepad.getSurfaceDataAtPosition(x, y);
             
-            if (possibleEnemy && possibleEnemy.player === 2) {
+            if (possibleEnemy && possibleEnemy.player !== ONLINGA.Gamepad.activePlayer) {
             
-              // attack     
+              // attack
 
               ONLINGA.Units.CombatManager.processCloseAttack(ONLINGA.Gamepad.selectedMilitary, possibleEnemy);
             
@@ -372,6 +409,8 @@ ONLINGA.Gamepad = (function() {
               
               ONLINGA.Gamepad.moveMilitaryToPosition(x, y);
             
+              ONLINGA.Gamepad.highlightActiveMilitaryHexaeder();
+
             }
       
           } else {
@@ -396,38 +435,69 @@ ONLINGA.Gamepad = (function() {
         
         ONLINGA.Gamepad.selectedMilitary = ONLINGA.Gamepad.getMilitaryAtPosition(x, y);
         
-        if (ONLINGA.Gamepad.selectedMilitary && ONLINGA.Gamepad.selectedMilitary.player === 1) {
+        if (ONLINGA.Gamepad.selectedMilitary && ONLINGA.Gamepad.selectedMilitary.player === ONLINGA.Gamepad.activePlayer) {
       
           // yes, there is own military
           
-          // highlight military and valid targets
-      
-          if (!ONLINGA.Gamepad.militaryHighlightElement) {
+          // check if it the active military for this round
+          
+          if (ONLINGA.Gamepad.movedMilitaryIndex === false || ONLINGA.Gamepad.selectedMilitary.index === ONLINGA.Gamepad.movedMilitaryIndex) {
+            
+            // no military was moved before or the same military was moved
+            
+            // highlight military and valid targets
         
-            ONLINGA.Gamepad.militaryHighlightElement = $('.highlight').first().clone().appendTo('#gamepad');
+            ONLINGA.Gamepad.highlightActiveMilitaryHexaeder();
 
-            ONLINGA.Gamepad.militaryHighlightElement.addClass('pulse');
+            ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
             
+          } else {
+          
+            // a military that was not moved before was selected
+            // in this case prevent military from beeing moved
+          
+            ONLINGA.Gamepad.selectedMilitary = false;
+          
           }
-          
-          offsetY = x % 2 === 0 ? 36 : 0;
-          
-          $(ONLINGA.Gamepad.militaryHighlightElement).css({
-          
-            left: x * 54 + 1,
-            
-            top: y * 72 + offsetY + 1,
-            
-            display: 'block'
-            
-          });
-          
-          ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
           
         }
             
       }
       
+    },
+    
+    highlightActiveMilitaryHexaeder: function() {
+    
+      var x, y;
+    
+      if (ONLINGA.Gamepad.selectedMilitary) {
+    
+        x = ONLINGA.Gamepad.selectedMilitary.position.x;
+        
+        y = ONLINGA.Gamepad.selectedMilitary.position.y;
+          
+        if (!ONLINGA.Gamepad.militaryHighlightElement) {
+      
+          ONLINGA.Gamepad.militaryHighlightElement = $('.highlight').first().clone().appendTo('#gamepad');
+
+          ONLINGA.Gamepad.militaryHighlightElement.addClass('pulse');
+          
+        }
+        
+        offsetY = x % 2 === 0 ? 36 : 0;
+        
+        $(ONLINGA.Gamepad.militaryHighlightElement).css({
+        
+          left: x * 54 + 1,
+          
+          top: y * 72 + offsetY + 1,
+          
+          display: 'block'
+          
+        });
+        
+      }
+          
     },
     
     deselectAll: function() {
@@ -586,6 +656,10 @@ ONLINGA.Gamepad = (function() {
     
       if (ONLINGA.Gamepad.selectedMilitary) {
       
+        // when military is moved, player can't select any other military in the same round
+        
+        ONLINGA.Gamepad.movedMilitaryIndex = ONLINGA.Gamepad.selectedMilitary.index;
+      
         treeElement = ONLINGA.Gamepad.getTreeElementAtPosition(ONLINGA.Gamepad.selectedMilitary.position.x, ONLINGA.Gamepad.selectedMilitary.position.y);
         
         if (treeElement) {
@@ -618,13 +692,17 @@ ONLINGA.Gamepad = (function() {
         
         } else {
         
-          ONLINGA.Gamepad.range = false;
-        
+          // no moves left
+          
           ONLINGA.Gamepad.deselectAll();
           
-          // end of moves reached
+          ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', x, y);
           
-          // switch player ...
+          // highlight next turn button
+          
+          $('#next-turn-button').addClass('highlight');
+          
+          //ONLINGA.Gamepad.playAudio('horn');
           
         }
       
@@ -751,7 +829,7 @@ ONLINGA.Gamepad = (function() {
       }
       
       delete ONLINGA.Gamepad.validTargets;
-    
+      
     },
     
     deselectMilitary: function() {
@@ -812,17 +890,21 @@ ONLINGA.Gamepad = (function() {
       
       ONLINGA.Gamepad.validTargets[1] = [];
       
-      ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 1);
+      if (range > 0) {
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 1);
+        
+      }
     
       if (range > 1) {
     
@@ -874,7 +956,7 @@ ONLINGA.Gamepad = (function() {
     
       var highlightElement, militaryTarget, offsetY;
 
-      highlightElement = $('.highlight').first().clone().appendTo('#gamepad');
+      highlightElement = $('.highlight.hexaeder').first().clone().appendTo('#gamepad');
 
       highlightElement.addClass('target');
       
@@ -889,7 +971,7 @@ ONLINGA.Gamepad = (function() {
         
           militaryTarget = ONLINGA.Gamepad.getMilitaryAtPosition(x, y);
           
-          if (!militaryTarget || militaryTarget.player === 2) {
+          if (!militaryTarget || militaryTarget.player !== ONLINGA.Gamepad.activePlayer) {
           
             offsetY = x % 2 === 0 ? 36 : 0;
             
@@ -915,7 +997,7 @@ ONLINGA.Gamepad = (function() {
           
           // if it is an enemy military, highlight hexaeder red
           
-          if (militaryTarget && militaryTarget.player === 2) {
+          if (militaryTarget && militaryTarget.player !== ONLINGA.Gamepad.activePlayer) {
           
             highlightElement.addClass('enemy');
           

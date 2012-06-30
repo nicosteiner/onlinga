@@ -270,21 +270,27 @@ ONLINGA.Units.CombatManager = {
 
         // all units from the army are dead
 
+        // cleanup and user feedback
+        
         handleDead(newPosition, loosers.index);
       
         // remove loosers from ONLINGA.Gamepad.military
 
-        ONLINGA.Gamepad.removeMilitaryByIndex(loosers.index);
+        ONLINGA.Gamepad.range = false;
         
+        ONLINGA.Gamepad.deselectMilitary();
+      
+        ONLINGA.Gamepad.removeMilitaryByIndex(loosers.index);
+
         return;
 
       }
 
-    }      
+    }
 
   },
   
-  handleDefeat: function(newPosition, index) {
+  handleDefeat: function(position, index) {
   
     // remove highlighted hexaeders
     
@@ -292,19 +298,23 @@ ONLINGA.Units.CombatManager = {
   
     // and give feedback to user
 
-    ONLINGA.Gamepad.showHintAtPosition('DEFEATED!', newPosition.x, newPosition.y);
+    ONLINGA.Gamepad.showHintAtPosition('DEFEATED!', position.x, position.y);
     
   },
   
-  handleVictory: function(newPosition, index) {
+  handleVictory: function(position, index) {
+  
+    // combat is over
+    
+    ONLINGA.Gamepad.range = 0;
   
     // move attacking military to enemy position
     
-    ONLINGA.Gamepad.moveMilitaryToPosition(newPosition.x, newPosition.y)
+    ONLINGA.Gamepad.moveMilitaryToPosition(position.x, position.y)
     
     // and give feedback to user
 
-    ONLINGA.Gamepad.showHintAtPosition('VICTORY!', newPosition.x, newPosition.y);
+    ONLINGA.Gamepad.showHintAtPosition('VICTORY!', position.x, position.y);
     
   },  
   
