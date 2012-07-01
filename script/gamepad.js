@@ -457,7 +457,7 @@ ONLINGA.Gamepad = (function() {
             
             if (ONLINGA.Gamepad.range === 0) {
 
-              ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', x, y);
+              ONLINGA.Gamepad.noMovesLeft();
               
             }
             
@@ -702,16 +702,22 @@ ONLINGA.Gamepad = (function() {
         
         } else {
         
-          // no moves left
-          
+          ONLINGA.Gamepad.noMovesLeft();
+        
           ONLINGA.Gamepad.endTurn();
         
-          ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', x, y);
-          
         }
       
       }
       
+    },
+    
+    noMovesLeft: function() {
+    
+      ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', ONLINGA.Gamepad.selectedMilitary.position.x, ONLINGA.Gamepad.selectedMilitary.position.y);
+          
+      ONLINGA.Gamepad.playAudio('skweak');
+    
     },
     
     endTurn: function() {
@@ -723,8 +729,6 @@ ONLINGA.Gamepad = (function() {
       // highlight next turn button
       
       $('#next-turn-button').addClass('highlight');
-      
-      //ONLINGA.Gamepad.playAudio('horn');
       
     },
     

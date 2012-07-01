@@ -284,8 +284,8 @@ ONLINGA.Units.CombatManager = {
     
       ONLINGA.Gamepad.endTurn();
     
-      ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', x, y);
-          
+      ONLINGA.Gamepad.noMovesLeft();
+    
     }
     
   },

@@ -191,7 +191,8 @@ ONLINGA.Main = (function() {
     createAudioTags: function() {
     
       var audioStack = [
-        'sounds/swoosh.ogg'
+        'sounds/swoosh.ogg',
+        'sounds/skweak.ogg'
       ], i;
       
       for (i = 0; i < audioStack.length; i += 1) {
