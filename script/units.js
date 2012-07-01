@@ -216,7 +216,7 @@ ONLINGA.Units.CombatManager = {
     var totalAttackPoints = attackingArmy.units.length * attackingArmy.units[0].getAttack(),
         totalDefensePoints = defendingArmy.units.length * defendingArmy.units[0].getDefense(), //add field defense and position deduction
         totalCombatPoints = totalAttackPoints + totalDefensePoints,
-        randomResult, i, damagePoints;
+        randomResult, i, damagePoints, damagePointsSum = 0;
 
     for (i = 0; i < ONLINGA.Units.CombatManager.combatTurns; i += 1) {
 
@@ -226,66 +226,92 @@ ONLINGA.Units.CombatManager = {
 
         // attacker wins round.
 
-        damagePoints = attackingArmy.units[0].getDamage();
-
-        ONLINGA.Units.CombatManager.handleCombatTurnLooser(defendingArmy, damagePoints, defendingArmy.position, ONLINGA.Units.CombatManager.handleVictory);
-
+        damagePoints = ONLINGA.Units.CombatManager.handleCombatTurnLooser(defendingArmy);
+        
+        // positive damage calculation
+        
+        damagePointsSum = damagePointsSum + damagePoints;
+    
       } else {
 
         // defender wins round.
 
-        damagePoints = defendingArmy.units[0].getDamage();
+        damagePoints = ONLINGA.Units.CombatManager.handleCombatTurnLooser(attackingArmy);
 
-        ONLINGA.Units.CombatManager.handleCombatTurnLooser(attackingArmy, damagePoints, attackingArmy.position, ONLINGA.Units.CombatManager.handleDefeat);
-
+        // negative damage calculation
+        
+        damagePointsSum = damagePointsSum - damagePoints;
+        
       }
 
       if (attackingArmy.units.length === 0 || defendingArmy.units.length === 0) {
 
         // One army is destroyed, no need to fight any further.
 
-        return;
+        break;
 
       }
 
     }
 
+    ONLINGA.Gamepad.showAttackHits(damagePointsSum);
+    
+    ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
+    
+    if (attackingArmy.units.length === 0) {
+
+      ONLINGA.Units.CombatManager.handleDefeat(attackingArmy.position);
+    
+      // remove loosers from ONLINGA.Gamepad.military
+
+      ONLINGA.Gamepad.removeMilitaryByIndex(attackingArmy.index);
+
+      ONLINGA.Gamepad.endTurn();
+      
+    } else if (defendingArmy.units.length === 0) {
+
+      ONLINGA.Units.CombatManager.handleVictory(defendingArmy.position);
+    
+      // remove loosers from ONLINGA.Gamepad.military
+
+      ONLINGA.Gamepad.removeMilitaryByIndex(defendingArmy.index);
+
+      ONLINGA.Gamepad.endTurn();
+
+    }
+    
+    if (ONLINGA.Gamepad.range === 0) {
+    
+      ONLINGA.Gamepad.endTurn();
+    
+      ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', x, y);
+          
+    }
+    
   },
   
-  handleCombatTurnLooser: function(loosers, damagePoints, newPosition, handleDead) {
+  handleCombatTurnLooser: function(looser) {
 
-    var looser = loosers.units[loosers.units.length-1]; // get the last unit from units array
+    var lastUnit, damagePoints;
+  
+    lastUnit = looser.units[looser.units.length - 1]; // get the last unit from units array
 
-    looser.reduceHealth(damagePoints);
-
-    ONLINGA.Gamepad.showAttackHits(damagePoints); //ToDo: function needs delay and info which army got hit.
+    // how strange is that?
     
-    if (looser.isDead()) {
+    damagePoints = looser.units[0].getDamage();
 
-      loosers.units.pop(); // Remove the last unit from units array
-   
-      ONLINGA.Gamepad.renderSingleArmy(loosers.index);
-
-      if (loosers.units.length === 0) {
-
-        // all units from the army are dead
-
-        // cleanup and user feedback
-        
-        handleDead(newPosition);
-      
-        // remove loosers from ONLINGA.Gamepad.military
-
-        ONLINGA.Gamepad.removeMilitaryByIndex(loosers.index);
-
-        ONLINGA.Gamepad.endTurn();
+    lastUnit.reduceHealth(damagePoints);
     
-        return;
+    if (lastUnit.isDead()) {
 
-      }
+      looser.units.pop(); // Remove the last unit from units array
+
+      ONLINGA.Gamepad.renderSingleArmy(looser.index);
 
     }
 
+    return damagePoints;
+    
   },
   
   handleDefeat: function(position) {
@@ -306,13 +332,13 @@ ONLINGA.Units.CombatManager = {
     
     // move attacking military to enemy position
     
-    ONLINGA.Gamepad.moveMilitaryToPosition(position.x, position.y)
+    ONLINGA.Gamepad.moveMilitaryToPosition(position.x, position.y);
     
     // and give feedback to user
 
     ONLINGA.Gamepad.showHintAtPosition('VICTORY!', position.x, position.y);
     
-  },  
+  }
   
 };
 
