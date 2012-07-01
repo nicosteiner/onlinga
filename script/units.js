@@ -254,6 +254,8 @@ ONLINGA.Units.CombatManager = {
 
     }
 
+    ONLINGA.Gamepad.playAudio('punsh');
+      
     ONLINGA.Gamepad.showAttackHits(damagePointsSum);
     
     ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
@@ -282,10 +284,10 @@ ONLINGA.Units.CombatManager = {
     
     if (ONLINGA.Gamepad.range === 0) {
     
-      ONLINGA.Gamepad.endTurn();
-    
       ONLINGA.Gamepad.noMovesLeft();
     
+      ONLINGA.Gamepad.endTurn();
+
     }
     
   },

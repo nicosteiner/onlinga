@@ -192,7 +192,8 @@ ONLINGA.Main = (function() {
     
       var audioStack = [
         'sounds/swoosh.ogg',
-        'sounds/skweak.ogg'
+        'sounds/skweak.ogg',  // http://opengameart.org/content/skweaks
+        'sounds/punsh.ogg'    // http://soundbible.com/995-Jab.html
       ], i;
       
       for (i = 0; i < audioStack.length; i += 1) {
