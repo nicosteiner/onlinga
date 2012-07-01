@@ -1308,7 +1308,7 @@ ONLINGA.Gamepad = (function() {
               
             });
             
-            if (ONLINGA.Gamepad.getMilitaryAtPosition(i, j) !== 0) {
+            if (ONLINGA.Gamepad.getMilitaryAtPosition(j, i)) {
             
               treeElement.addClass('transparent');
             
