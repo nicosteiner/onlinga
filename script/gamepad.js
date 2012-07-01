@@ -278,7 +278,9 @@ ONLINGA.Gamepad = (function() {
       ONLINGA.Gamepad.range = false;
       
       ONLINGA.Gamepad.movedMilitaryIndex = false;
-          
+      
+      ONLINGA.Gamepad.deselectAll();
+  
       $('#next-turn-button').removeClass('highlight');
     
       if (ONLINGA.Gamepad.activePlayer === 1) {
@@ -450,6 +452,14 @@ ONLINGA.Gamepad = (function() {
             ONLINGA.Gamepad.highlightActiveMilitaryHexaeder();
 
             ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
+            
+            // if there are no moves left inform user
+            
+            if (ONLINGA.Gamepad.range === 0) {
+
+              ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', x, y);
+              
+            }
             
           } else {
           
@@ -694,19 +704,27 @@ ONLINGA.Gamepad = (function() {
         
           // no moves left
           
-          ONLINGA.Gamepad.deselectAll();
-          
+          ONLINGA.Gamepad.endTurn();
+        
           ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', x, y);
-          
-          // highlight next turn button
-          
-          $('#next-turn-button').addClass('highlight');
-          
-          //ONLINGA.Gamepad.playAudio('horn');
           
         }
       
       }
+      
+    },
+    
+    endTurn: function() {
+    
+      ONLINGA.Gamepad.deselectAll();
+      
+      ONLINGA.Gamepad.range = 0;
+  
+      // highlight next turn button
+      
+      $('#next-turn-button').addClass('highlight');
+      
+      //ONLINGA.Gamepad.playAudio('horn');
       
     },
     
@@ -729,9 +747,9 @@ ONLINGA.Gamepad = (function() {
         opacity: '0.2'
       
       });
-      
 
       $('#hint').animate( { marginTop: '-=6px', opacity: 1 }, 500 )
+                .delay(250)
                 .animate( { marginTop: '-=6px', opacity: 0 }, 500, function() {
                 $('#hint').css({ marginTop: '0', display: 'none' });
       });
@@ -811,7 +829,7 @@ ONLINGA.Gamepad = (function() {
         // highlight targets in range
         
         ONLINGA.Gamepad.highlightTargetsInRange(range);
-       
+
       }
     
     },
@@ -1076,31 +1094,31 @@ ONLINGA.Gamepad = (function() {
     
       meadowImage[0] = new Image();
           
-      meadowImage[0].src = 'img/tiles/meadow-1.gif';
+      meadowImage[0].src = 'img/gamepad/meadow-1.gif';
 
       meadowImage[1] = new Image();
           
-      meadowImage[1].src = 'img/tiles/meadow-2.gif';
+      meadowImage[1].src = 'img/gamepad/meadow-2.gif';
 
       meadowImage[2] = new Image();
           
-      meadowImage[2].src = 'img/tiles/meadow-3.gif';
+      meadowImage[2].src = 'img/gamepad/meadow-3.gif';
 
       hexagonImage = new Image();
 
-      hexagonImage.src = 'img/tiles/hexaeder.png';
+      hexagonImage.src = 'img/gamepad/hexaeder.png';
 
       fallowImage[0] = new Image();
 
-      fallowImage[0].src = 'img/tiles/fallow-medium-1.png';
+      fallowImage[0].src = 'img/gamepad/fallow-medium-1.png';
       
       fallowImage[1] = new Image();
       
-      fallowImage[1].src = 'img/tiles/fallow-big-1.png';
+      fallowImage[1].src = 'img/gamepad/fallow-big-1.png';
       
       fallowImage[2] = new Image();
       
-      fallowImage[2].src = 'img/tiles/fallow-big-2.png';
+      fallowImage[2].src = 'img/gamepad/fallow-big-2.png';
         
       for (i = 0; i < underground.length; i += 1) {
     
@@ -1206,11 +1224,11 @@ ONLINGA.Gamepad = (function() {
       
       lakeSmallImage = new Image();
       
-      lakeSmallImage.src = 'img/tiles/lake-small.png';
+      lakeSmallImage.src = 'img/gamepad/lake-small.png';
 
       lakeBigImage = new Image();
       
-      lakeBigImage.src = 'img/tiles/lake-big.png';
+      lakeBigImage.src = 'img/gamepad/lake-big.png';
       
       // small and big lakes
     

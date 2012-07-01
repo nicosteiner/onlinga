@@ -272,16 +272,14 @@ ONLINGA.Units.CombatManager = {
 
         // cleanup and user feedback
         
-        handleDead(newPosition, loosers.index);
+        handleDead(newPosition);
       
         // remove loosers from ONLINGA.Gamepad.military
 
-        ONLINGA.Gamepad.range = false;
-        
-        ONLINGA.Gamepad.deselectMilitary();
-      
         ONLINGA.Gamepad.removeMilitaryByIndex(loosers.index);
 
+        ONLINGA.Gamepad.endTurn();
+    
         return;
 
       }
@@ -290,7 +288,7 @@ ONLINGA.Units.CombatManager = {
 
   },
   
-  handleDefeat: function(position, index) {
+  handleDefeat: function(position) {
   
     // remove highlighted hexaeders
     
@@ -302,12 +300,10 @@ ONLINGA.Units.CombatManager = {
     
   },
   
-  handleVictory: function(position, index) {
+  handleVictory: function(position) {
   
     // combat is over
     
-    ONLINGA.Gamepad.range = 0;
-  
     // move attacking military to enemy position
     
     ONLINGA.Gamepad.moveMilitaryToPosition(position.x, position.y)
