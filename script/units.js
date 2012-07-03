@@ -344,7 +344,160 @@ ONLINGA.Units.CombatManager = {
   
 };
 
+ONLINGA.Units.Army = function() {};
+
+ONLINGA.Units.Army.prototype = {
+
+  position: { x: null, y: null },
+  
+  player: null,
+
+  orientation: 1,
+  
+  type: null,
+  
+  range: null,
+  
+  units: null,
+
+  getXPosition : function() {
+
+    return this.position.x;
+
+  },
+
+  getYPosition : function() {
+
+    return this.position.y;
+
+  },
+
+  getPosition : function() {
+
+    return this.position;
+
+  },
+
+  getPlayer : function() {
+
+    return this.player;
+
+  },
+
+  getAmount : function() {
+
+    return this.units.length;
+
+  },
+
+  getType : function() {
+
+    return this.type;
+
+  },
+
+  getRange : function() {
+
+    return this.range;
+  
+  },
+
+  getUnits : function() {
+
+    return this.units;
+
+  },
+
+  getOrientation : function() {
+
+    return this.orientation;
+
+  },
+
+  setXPosition : function(x) {
+
+    this.position.x = x;
+
+  },
+
+  setYPosition : function(y) {
+
+    this.position.y = y;
+
+  },
+
+  setPosition : function(position) {
+
+    this.position = position;
+
+  },
+
+  setOrientation : function() {
+
+    this.orientation = orientation;
+
+  }
+};
+
 ONLINGA.Units.Factory = {
+
+  createArmyOfNoType: function(player, amount, orientation, xPosition, yPosition) {
+
+    var army = new ONLINGA.Units.Army();
+
+    army.position.x = xPosition;
+
+    army.position.y = yPosition;
+
+    army.player = player;
+
+    army.orientation = orientation;
+
+    return army;
+
+  },
+
+  createArmyOfKnights: function(player, amount, orientation, xPosition, yPosition) {
+   
+    var armyOfKnights = this.createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
+
+    armyOfKnights.type = "knight";
+
+    armyOfKnights.range = 2;
+
+    armyOfKnights.units = this.createKnights(amount);
+
+    return armyOfKnights;
+
+  },
+
+  createArmyOfArchers: function(player, amount, orientation, xPosition, yPosition) {
+   
+    var armyOfArchers = this.createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
+
+    armyOfArchers.type = "archer";
+
+    armyOfArchers.range = 3;
+
+    armyOfArchers.units = this.createArchers(amount);
+
+    return armyOfArchers;
+
+  },
+
+  createArmyOfRiders: function(player, amount, orientation, xPosition, yPosition) {
+
+    var armyOfRiders = this.createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
+
+    armyOfRiders.type = "rider";
+
+    armyOfRiders.range = 4;
+
+    armyOfRiders.units = this.createRiders(amount);
+
+    return armyOfRiders;
+
+  },
 
   createKnights: function(amount) {
 
