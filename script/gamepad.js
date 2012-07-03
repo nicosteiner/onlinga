@@ -6,7 +6,6 @@ ONLINGA.Gamepad = (function() {
       surface = [],
       props = [],
       military = [],
-      militaryPositions = [],
       canvas,
       canvasContext;
 
@@ -189,24 +188,6 @@ ONLINGA.Gamepad = (function() {
         
       ];
       
-      // will be set with values afterwards
-      
-      militaryPositions = [
-      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                      
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                                      
-      ];
-      
       // specials
       // ========
       
@@ -220,6 +201,10 @@ ONLINGA.Gamepad = (function() {
       
       ONLINGA.Gamepad.range = false;
       
+      ONLINGA.Gamepad.movedMilitaryIndex = false;
+      
+      ONLINGA.Gamepad.activePlayer = 1;
+      
       ONLINGA.Gamepad.createMilitaryIndex();
       
     },
@@ -231,6 +216,16 @@ ONLINGA.Gamepad = (function() {
       for (i = 0; i < military.length; i += 1) {
       
         military[i].index = i;
+      
+      }
+    
+    },
+    
+    removeMilitaryByIndex: function(index) {
+    
+      if (military[index]) {
+      
+        delete military[index];
       
       }
     
@@ -267,7 +262,42 @@ ONLINGA.Gamepad = (function() {
         ONLINGA.Gamepad.processClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
         
       });
+      
+      $('#next-turn-button').click(function(e) {
+      
+        e.preventDefault();
+        
+        ONLINGA.Gamepad.switchToNextTurn();
+      
+      });
     
+    },
+    
+    switchToNextTurn: function() {
+    
+      ONLINGA.Gamepad.range = false;
+      
+      ONLINGA.Gamepad.movedMilitaryIndex = false;
+      
+      ONLINGA.Gamepad.deselectAll();
+  
+      $('#next-turn-button').removeClass('highlight');
+    
+      if (ONLINGA.Gamepad.activePlayer === 1) {
+      
+        ONLINGA.Gamepad.activePlayer = 2;
+        
+        ONLINGA.Gamepad.showGameTitle('<h1>Player 2</h1>');
+      
+      } else {
+      
+        ONLINGA.Gamepad.activePlayer = 1;
+      
+      
+        ONLINGA.Gamepad.showGameTitle('<h1>Player 1</h1>');
+      
+      }
+      
     },
     
     processClick: function(x, y) {
@@ -369,9 +399,9 @@ ONLINGA.Gamepad = (function() {
             
             surfaceData = ONLINGA.Gamepad.getSurfaceDataAtPosition(x, y);
             
-            if (possibleEnemy && possibleEnemy.player === 2) {
+            if (possibleEnemy && possibleEnemy.player !== ONLINGA.Gamepad.activePlayer) {
             
-              // attack     
+              // attack
 
               ONLINGA.Units.CombatManager.processCloseAttack(ONLINGA.Gamepad.selectedMilitary, possibleEnemy);
             
@@ -381,6 +411,8 @@ ONLINGA.Gamepad = (function() {
               
               ONLINGA.Gamepad.moveMilitaryToPosition(x, y);
             
+              ONLINGA.Gamepad.highlightActiveMilitaryHexaeder();
+
             }
       
           } else {
@@ -405,38 +437,77 @@ ONLINGA.Gamepad = (function() {
         
         ONLINGA.Gamepad.selectedMilitary = ONLINGA.Gamepad.getMilitaryAtPosition(x, y);
         
-        if (ONLINGA.Gamepad.selectedMilitary && ONLINGA.Gamepad.selectedMilitary.player === 1) {
+        if (ONLINGA.Gamepad.selectedMilitary && ONLINGA.Gamepad.selectedMilitary.player === ONLINGA.Gamepad.activePlayer) {
       
           // yes, there is own military
           
-          // highlight military and valid targets
-      
-          if (!ONLINGA.Gamepad.militaryHighlightElement) {
+          // check if it the active military for this round
+          
+          if (ONLINGA.Gamepad.movedMilitaryIndex === false || ONLINGA.Gamepad.selectedMilitary.index === ONLINGA.Gamepad.movedMilitaryIndex) {
+            
+            // no military was moved before or the same military was moved
+            
+            // highlight military and valid targets
         
-            ONLINGA.Gamepad.militaryHighlightElement = $('.highlight').first().clone().appendTo('#gamepad');
+            ONLINGA.Gamepad.highlightActiveMilitaryHexaeder();
 
-            ONLINGA.Gamepad.militaryHighlightElement.addClass('pulse');
+            ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
             
+            // if there are no moves left inform user
+            
+            if (ONLINGA.Gamepad.range === 0) {
+
+              ONLINGA.Gamepad.noMovesLeft();
+              
+            }
+            
+          } else {
+          
+            // a military that was not moved before was selected
+            // in this case prevent military from beeing moved
+          
+            ONLINGA.Gamepad.selectedMilitary = false;
+          
           }
-          
-          offsetY = x % 2 === 0 ? 36 : 0;
-          
-          $(ONLINGA.Gamepad.militaryHighlightElement).css({
-          
-            left: x * 54 + 1,
-            
-            top: y * 72 + offsetY + 1,
-            
-            display: 'block'
-            
-          });
-          
-          ONLINGA.Gamepad.highlightTargetHexaeders(ONLINGA.Gamepad.range);
           
         }
             
       }
       
+    },
+    
+    highlightActiveMilitaryHexaeder: function() {
+    
+      var x, y;
+    
+      if (ONLINGA.Gamepad.selectedMilitary) {
+    
+        x = ONLINGA.Gamepad.selectedMilitary.position.x;
+        
+        y = ONLINGA.Gamepad.selectedMilitary.position.y;
+          
+        if (!ONLINGA.Gamepad.militaryHighlightElement) {
+      
+          ONLINGA.Gamepad.militaryHighlightElement = $('.highlight').first().clone().appendTo('#gamepad');
+
+          ONLINGA.Gamepad.militaryHighlightElement.addClass('pulse');
+          
+        }
+        
+        offsetY = x % 2 === 0 ? 36 : 0;
+        
+        $(ONLINGA.Gamepad.militaryHighlightElement).css({
+        
+          left: x * 54 + 1,
+          
+          top: y * 72 + offsetY + 1,
+          
+          display: 'block'
+          
+        });
+        
+      }
+          
     },
     
     deselectAll: function() {
@@ -595,6 +666,10 @@ ONLINGA.Gamepad = (function() {
     
       if (ONLINGA.Gamepad.selectedMilitary) {
       
+        // when military is moved, player can't select any other military in the same round
+        
+        ONLINGA.Gamepad.movedMilitaryIndex = ONLINGA.Gamepad.selectedMilitary.index;
+      
         treeElement = ONLINGA.Gamepad.getTreeElementAtPosition(ONLINGA.Gamepad.selectedMilitary.position.x, ONLINGA.Gamepad.selectedMilitary.position.y);
         
         if (treeElement) {
@@ -627,17 +702,33 @@ ONLINGA.Gamepad = (function() {
         
         } else {
         
-          ONLINGA.Gamepad.range = false;
+          ONLINGA.Gamepad.noMovesLeft();
         
-          ONLINGA.Gamepad.deselectAll();
-          
-          // end of moves reached
-          
-          // switch player ...
-          
+          ONLINGA.Gamepad.endTurn();
+        
         }
       
       }
+      
+    },
+    
+    noMovesLeft: function() {
+    
+      ONLINGA.Gamepad.showHintAtPosition('NO MOVES LEFT!', ONLINGA.Gamepad.selectedMilitary.position.x, ONLINGA.Gamepad.selectedMilitary.position.y);
+          
+      ONLINGA.Gamepad.playAudio('skweak');
+    
+    },
+    
+    endTurn: function() {
+    
+      ONLINGA.Gamepad.deselectAll();
+      
+      ONLINGA.Gamepad.range = 0;
+  
+      // highlight next turn button
+      
+      $('#next-turn-button').addClass('highlight');
       
     },
     
@@ -660,9 +751,9 @@ ONLINGA.Gamepad = (function() {
         opacity: '0.2'
       
       });
-      
 
       $('#hint').animate( { marginTop: '-=6px', opacity: 1 }, 500 )
+                .delay(250)
                 .animate( { marginTop: '-=6px', opacity: 0 }, 500, function() {
                 $('#hint').css({ marginTop: '0', display: 'none' });
       });
@@ -742,7 +833,7 @@ ONLINGA.Gamepad = (function() {
         // highlight targets in range
         
         ONLINGA.Gamepad.highlightTargetsInRange(range);
-       
+
       }
     
     },
@@ -760,7 +851,7 @@ ONLINGA.Gamepad = (function() {
       }
       
       delete ONLINGA.Gamepad.validTargets;
-    
+      
     },
     
     deselectMilitary: function() {
@@ -821,17 +912,21 @@ ONLINGA.Gamepad = (function() {
       
       ONLINGA.Gamepad.validTargets[1] = [];
       
-      ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
-    
-      ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 1);
+      if (range > 0) {
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
+      
+        ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 1);
+        
+      }
     
       if (range > 1) {
     
@@ -883,7 +978,7 @@ ONLINGA.Gamepad = (function() {
     
       var highlightElement, militaryTarget, offsetY;
 
-      highlightElement = $('.highlight').first().clone().appendTo('#gamepad');
+      highlightElement = $('.highlight.hexaeder').first().clone().appendTo('#gamepad');
 
       highlightElement.addClass('target');
       
@@ -898,7 +993,7 @@ ONLINGA.Gamepad = (function() {
         
           militaryTarget = ONLINGA.Gamepad.getMilitaryAtPosition(x, y);
           
-          if (!militaryTarget || militaryTarget.player === 2) {
+          if (!militaryTarget || militaryTarget.player !== ONLINGA.Gamepad.activePlayer) {
           
             offsetY = x % 2 === 0 ? 36 : 0;
             
@@ -924,7 +1019,7 @@ ONLINGA.Gamepad = (function() {
           
           // if it is an enemy military, highlight hexaeder red
           
-          if (militaryTarget && militaryTarget.player === 2) {
+          if (militaryTarget && militaryTarget.player !== ONLINGA.Gamepad.activePlayer) {
           
             highlightElement.addClass('enemy');
           
@@ -950,7 +1045,7 @@ ONLINGA.Gamepad = (function() {
       
       for (i = 0; i < military.length; i += 1) {
       
-        if (military[i].position.x === x && military[i].position.y === y) {
+        if (military[i] && military[i].position.x === x && military[i].position.y === y) {
         
           return military[i];
         
@@ -1003,31 +1098,31 @@ ONLINGA.Gamepad = (function() {
     
       meadowImage[0] = new Image();
           
-      meadowImage[0].src = 'img/tiles/meadow-1.gif';
+      meadowImage[0].src = 'img/gamepad/meadow-1.gif';
 
       meadowImage[1] = new Image();
           
-      meadowImage[1].src = 'img/tiles/meadow-2.gif';
+      meadowImage[1].src = 'img/gamepad/meadow-2.gif';
 
       meadowImage[2] = new Image();
           
-      meadowImage[2].src = 'img/tiles/meadow-3.gif';
+      meadowImage[2].src = 'img/gamepad/meadow-3.gif';
 
       hexagonImage = new Image();
 
-      hexagonImage.src = 'img/tiles/hexaeder.png';
+      hexagonImage.src = 'img/gamepad/hexaeder.png';
 
       fallowImage[0] = new Image();
 
-      fallowImage[0].src = 'img/tiles/fallow-medium-1.png';
+      fallowImage[0].src = 'img/gamepad/fallow-medium-1.png';
       
       fallowImage[1] = new Image();
       
-      fallowImage[1].src = 'img/tiles/fallow-big-1.png';
+      fallowImage[1].src = 'img/gamepad/fallow-big-1.png';
       
       fallowImage[2] = new Image();
       
-      fallowImage[2].src = 'img/tiles/fallow-big-2.png';
+      fallowImage[2].src = 'img/gamepad/fallow-big-2.png';
         
       for (i = 0; i < underground.length; i += 1) {
     
@@ -1133,11 +1228,11 @@ ONLINGA.Gamepad = (function() {
       
       lakeSmallImage = new Image();
       
-      lakeSmallImage.src = 'img/tiles/lake-small.png';
+      lakeSmallImage.src = 'img/gamepad/lake-small.png';
 
       lakeBigImage = new Image();
       
-      lakeBigImage.src = 'img/tiles/lake-big.png';
+      lakeBigImage.src = 'img/gamepad/lake-big.png';
       
       // small and big lakes
     
@@ -1217,7 +1312,7 @@ ONLINGA.Gamepad = (function() {
               
             });
             
-            if (militaryPositions[i][j] !== 0) {
+            if (ONLINGA.Gamepad.getMilitaryAtPosition(j, i)) {
             
               treeElement.addClass('transparent');
             
@@ -1283,7 +1378,7 @@ ONLINGA.Gamepad = (function() {
 
     renderSingleArmy: function(index) {
     
-      var militaryElement, offsetY;
+      var militaryElement, offsetY, i, currentHealth, healthElement;
     
       // remove existing dom elements
       
@@ -1299,8 +1394,6 @@ ONLINGA.Gamepad = (function() {
       
       offsetY = military[index].position.x % 2 === 0 ? 36 : 0;
 
-      militaryPositions[military[index].position.y][military[index].position.x] = 1;
-      
       // prevent military element from beeing draged while moving the gamepad
       
       militaryElement.mousedown(ONLINGA.Gamepad.preventEventDefault);
@@ -1315,7 +1408,23 @@ ONLINGA.Gamepad = (function() {
         
       });
 
+      healthElement = $('.health').first().clone().appendTo(militaryElement);
+      
+      // for each unit add an unit helath element
+      
+      for (i = 0; i < military[index].units.length; i += 1) {
+      
+        currentHealth = 6 / (military[index].units[i].maxHealth / military[index].units[i].currentHealth);
+      
+        healthElement.attr('id', 'military-health-' + index);
+      
+        healthElement.append($('<span class="unit-health">')
+                             .css({ boxShadow: currentHealth + 'px 0 0 0 #0f0 inset' }));
+      
+      }
+      
     },
+    
     
     preventEventDefault: function(e) {
           
