@@ -443,7 +443,7 @@ ONLINGA.Units.Factory = {
 
   createArmyOfNoType: function(player, amount, orientation, xPosition, yPosition) {
 
-    var army = new Army();
+    var army = new ONLINGA.Units.Army();
 
     army.position.x = xPosition;
 
@@ -459,13 +459,13 @@ ONLINGA.Units.Factory = {
 
   createArmyOfKnights: function(player, amount, orientation, xPosition, yPosition) {
    
-    var armyOfKnights = createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
+    var armyOfKnights = this.createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
 
     armyOfKnights.type = "knight";
 
     armyOfKnights.range = 2;
 
-    armyOfKnights.units = ONLINGA.Units.Factory.createKnights(amount);
+    armyOfKnights.units = this.createKnights(amount);
 
     return armyOfKnights;
 
@@ -473,27 +473,27 @@ ONLINGA.Units.Factory = {
 
   createArmyOfArchers: function(player, amount, orientation, xPosition, yPosition) {
    
-    var armyOfArchers = createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
+    var armyOfArchers = this.createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
 
     armyOfArchers.type = "archer";
 
     armyOfArchers.range = 3;
 
-    armyOfArchers.units = ONLINGA.Units.Factory.createArchers(amount);
+    armyOfArchers.units = this.createArchers(amount);
 
     return armyOfArchers;
 
   },
 
   createArmyOfRiders: function(player, amount, orientation, xPosition, yPosition) {
-   
-    var armyOfRiders = createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
+
+    var armyOfRiders = this.createArmyOfNoType(player, amount, orientation, xPosition, yPosition);
 
     armyOfRiders.type = "rider";
 
     armyOfRiders.range = 4;
 
-    armyOfRiders.units = ONLINGA.Units.Factory.createRiders(amount);
+    armyOfRiders.units = this.createRiders(amount);
 
     return armyOfRiders;
 
