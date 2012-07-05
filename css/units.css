@@ -4,7 +4,7 @@
 }
 
 #gamepad .military.knight-1-2 {
-  background-image: url(../img/units/player-1/knight-1.png), url(../img/units/player-2/knight-1.png);
+  background-image: url(../img/units/player-1/knight-1.png), url(../img/units/player-1/knight-1.png);
   background-position: 16px 25px, 40px 25px;
 }
 
