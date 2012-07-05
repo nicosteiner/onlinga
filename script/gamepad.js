@@ -872,9 +872,13 @@ ONLINGA.Gamepad = (function() {
     
     highlightTargetsInRangeSub: function(range) {
     
-      var i, x, y;
+      var i, x, y, surface;
+    
+      // prepare array for valid targets of current range
     
       ONLINGA.Gamepad.validTargets[range] = [];
+      
+      // go through last ranges valid targets and from there calculate all valid targets of current range
       
       for (i = 0; i < ONLINGA.Gamepad.validTargets[range - 1].length; i += 1) {
     
@@ -882,17 +886,28 @@ ONLINGA.Gamepad = (function() {
     
         y = ONLINGA.Gamepad.validTargets[range - 1][i].y;
     
-        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, range);
-      
-        ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, range);
-      
-        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, range);
-      
-        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), range);
-      
-        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), range);
-      
-        ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, range);
+        surface = ONLINGA.Gamepad.validTargets[range - 1][i].surface;
+    
+        // info: function highlightTargetHexaeder also fills valid target array
+        
+        // hill hexaeders are treated in a special way
+        // based on hill hexaeders (surface = 3) there are no surrounding targets calculated
+        
+        if (!(surface === 3)) {
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 'right-bottom', range);
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 'bottom', range);
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 'left-bottom', range);
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 'right-top', range);
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 'left-top', range);
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 'top', range);
+          
+        }
     
       }
     
@@ -900,7 +915,7 @@ ONLINGA.Gamepad = (function() {
     
     highlightTargetsInRange: function(range) {
     
-      var x, y, i;
+      var x, y, i, onHill;
       
       x = ONLINGA.Gamepad.selectedMilitary.position.x;
     
@@ -912,19 +927,50 @@ ONLINGA.Gamepad = (function() {
       
       ONLINGA.Gamepad.validTargets[1] = [];
       
+      // info: function highlightTargetHexaeder also fills valid target array
+      
+      onHill = surface[y][x] === 3;
+      
       if (range > 0) {
+
+        // check if military stands on a hill
+        // in that case only the exit hexaeder is highlighted
       
-        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 1);
+        if (!onHill || (onHill && props[y][x] === 3)) {
       
-        ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 1);
+          ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y - x % 2, 'right-bottom', 1);
+          
+        }
+        
+        if (!onHill || (onHill && props[y][x] === 4)) {
       
-        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 1);
+          ONLINGA.Gamepad.highlightTargetHexaeder(x, y - 1, 'bottom', 1);
+
+        }
+          
+        if (!onHill || (onHill && props[y][x] === 5)) {
       
-        ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 1);
-      
-        ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 1);
-      
-        ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 1);
+          ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y - x % 2, 'left-bottom', 1);
+          
+        }
+        
+        if (!onHill || (onHill && props[y][x] === 2)) {
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x - 1, y + (1 - x % 2), 'right-top', 1);
+          
+        }
+        
+        if (!onHill || (onHill && props[y][x] === 6)) {
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x + 1, y + (1 - x % 2), 'left-top', 1);
+          
+        }
+        
+        if (!onHill || (onHill && props[y][x] === 1)) {
+        
+          ONLINGA.Gamepad.highlightTargetHexaeder(x, y + 1, 'top', 1);
+          
+        }
         
       }
     
@@ -974,9 +1020,9 @@ ONLINGA.Gamepad = (function() {
     
     },
     
-    highlightTargetHexaeder: function(x, y, range) {
+    highlightTargetHexaeder: function(x, y, originPosition, range) {
     
-      var highlightElement, militaryTarget, offsetY;
+      var highlightElement, militaryTarget, offsetY, hill, hillWalkable;
 
       highlightElement = $('.highlight.hexaeder').first().clone().appendTo('#gamepad');
 
@@ -986,7 +1032,7 @@ ONLINGA.Gamepad = (function() {
       
       if (typeof surface[y] !== 'undefined' && typeof surface[y][x] !== 'undefined' && surface[y][x] !== 1 && surface[y][x] !== 4) {
       
-        // check if there is an own military target
+        // check if there is an own military target or if hexaeder already is valid target
         // if not, highlight the hexaeder
 
         if (!ONLINGA.Gamepad.isAlreadyValidTarget(x, y, range)) {
@@ -995,42 +1041,108 @@ ONLINGA.Gamepad = (function() {
           
           if (!militaryTarget || militaryTarget.player !== ONLINGA.Gamepad.activePlayer) {
           
-            offsetY = x % 2 === 0 ? 36 : 0;
+            // find out if target is a hill hexaeder and if it is walkable
+            // thats the case when origin position and entrance of hill are suitable to each other
             
-            $(highlightElement).css({
+            if (surface[y][x] === 3) {
             
-              left: x * 54 + 1,
+              hill = true;
               
-              top: y * 72 + offsetY + 1,
+              hillWalkable = false;
+              
+              if (originPosition === 'bottom' && props[y][x] === 1) {
+              
+                // from bottom to top
+              
+                hillWalkable = true;
+              
+              } else if (originPosition === 'left-bottom' && props[y][x] === 2) {
+              
+                // from left-bottom to right-top
+              
+                hillWalkable = true;
+              
+              } else if (originPosition === 'left-top' && props[y][x] === 3) {
+              
+                // from left-top to right-bottom
+              
+                hillWalkable = true;
+              
+              } else if (originPosition === 'top' && props[y][x] === 4) {
+              
+                // from top to bottom
+              
+                hillWalkable = true;
+              
+              } else if (originPosition === 'right-top' && props[y][x] === 5) {
+              
+                // from right-top to left-bottom
+              
+                hillWalkable = true;
+              
+              } else if (originPosition === 'right-bottom' && props[y][x] === 6) {
+              
+                // from right-bottom to left-top
+              
+                hillWalkable = true;
+              
+              }
+              
+            } else {
+            
+              hill = false;
+            
+            }
+          
+            if (!hill || hillWalkable) {
+
+              // all checks successfully
+              // highlight target!
+            
+              offsetY = x % 2 === 0 ? 36 : 0;
+              
+              $(highlightElement).css({
+              
+                left: x * 54 + 1,
+                
+                top: y * 72 + offsetY + 1,
+                      
+                display: 'block'
+                
+              });
                     
-              display: 'block'
+              // function now fills valid target array
+              // surface data is needed to treat hills in a special way
+              // (based on hill hexaeders there are no valid targets calculated)
               
-            });
-            
-            ONLINGA.Gamepad.validTargets[range].push({
-            
-              x: x,
+              ONLINGA.Gamepad.validTargets[range].push({
               
-              y: y
+                x: x,
+                
+                y: y,
+                
+                surface: surface[y][x]
+                
+              });
               
-            });
+              // if it is an enemy military, highlight hexaeder red
+              
+              if (militaryTarget && militaryTarget.player !== ONLINGA.Gamepad.activePlayer) {
+              
+                highlightElement.addClass('enemy');
+              
+              }
+              
+              // if it is outside range 1, make it even more transparent
+              
+              if (range > 1) {
+              
+                highlightElement.addClass('outside');
+              
+              }
+              
+            }
             
-          }
-          
-          // if it is an enemy military, highlight hexaeder red
-          
-          if (militaryTarget && militaryTarget.player !== ONLINGA.Gamepad.activePlayer) {
-          
-            highlightElement.addClass('enemy');
-          
-          }
-          
-          // if it is outside range 1, make it even more transparent
-          
-          if (range > 1) {
-          
-            highlightElement.addClass('outside');
-          
           }
           
         }
